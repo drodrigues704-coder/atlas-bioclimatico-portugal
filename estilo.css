@@ -1,0 +1,254 @@
+/* Atlas Bioclimático — folha de atlas ao lado do mapa.
+   A cor é a informação dos mapas: a interface fica discreta. */
+:root {
+  --fundo: #eef1ee;        /* líquen pálido */
+  --folha: #f8faf8;
+  --tinta: #1e2a2f;
+  --tinta-suave: #5b6b70;
+  --linha: #c9d2ce;
+  --ativo: #2f6f5e;        /* sobreiro */
+  --foco: #1f5f8b;
+  --tendencia: #c4552f;    /* reta de Theil–Sen no gráfico das séries */
+  /* Walter-Lieth: T a vermelho, P a azul (convenção do diagrama) */
+  --wl-t: #c0392b; --wl-p: #1f5f99; --wl-seco: rgba(214, 140, 40, 0.45);
+  --wl-humido: rgba(31, 95, 153, 0.22); --wl-superhumido: #1d3a5c; --wl-geada: #5a9bd4;
+  --serifa: "Spectral", Georgia, serif;
+  --sans: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --largura-folha: 22.5rem;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --fundo: #18201f; --folha: #1e2826; --tinta: #e4ebe7; --tinta-suave: #a3b2ad;
+    --linha: #34433f; --ativo: #7cc2ac; --foco: #8cc4e8; --tendencia: #e8875f;
+    --wl-t: #ef7b6b; --wl-p: #7db4e6; --wl-seco: rgba(232, 168, 80, 0.45);
+    --wl-humido: rgba(125, 180, 230, 0.22); --wl-superhumido: #a9c9ea; --wl-geada: #9ccbf0;
+  }
+}
+:root[data-theme="dark"] {
+  --fundo: #18201f; --folha: #1e2826; --tinta: #e4ebe7; --tinta-suave: #a3b2ad;
+  --linha: #34433f; --ativo: #7cc2ac; --foco: #8cc4e8; --tendencia: #e8875f;
+  --wl-t: #ef7b6b; --wl-p: #7db4e6; --wl-seco: rgba(232, 168, 80, 0.45);
+  --wl-humido: rgba(125, 180, 230, 0.22); --wl-superhumido: #a9c9ea; --wl-geada: #9ccbf0;
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body {
+  background: var(--fundo);
+  color: var(--tinta);
+  font: 400 0.9375rem/1.5 var(--sans);
+}
+
+.atlas { display: flex; height: 100vh; }
+
+/* Painel esquerdo "Análise do ponto": abre ao clicar no mapa. */
+.analise {
+  width: 26rem;
+  flex: none;
+  overflow-y: auto;
+  padding: 1.25rem 1.25rem 1rem;
+  background: var(--folha);
+  border-right: 1px solid var(--linha);
+}
+.analise[hidden] { display: none; }
+.analise__cabecalho { display: flex; justify-content: space-between; align-items: baseline; }
+.analise__cabecalho h2 { font-size: 1.25rem; margin: 0; }
+.analise__fechar {
+  font: 1.5rem/1 var(--serifa); color: var(--tinta-suave);
+  background: none; border: 0; cursor: pointer; padding: 0.125rem 0.375rem;
+}
+.analise__fechar:focus-visible { outline: 2px solid var(--foco); outline-offset: 2px; }
+.analise h3 { font-family: var(--serifa); font-weight: 600; font-size: 1rem; margin: 1.25rem 0 0.5rem; }
+.series-escolha { display: flex; flex-wrap: wrap; gap: 0.375rem; margin-bottom: 0.75rem; }
+.series-escolha label {
+  font-size: 0.75rem; padding: 0.25rem 0.5rem; cursor: pointer;
+  border: 1px solid var(--linha); border-radius: 3px;
+}
+.series-escolha input { position: absolute; opacity: 0; pointer-events: none; }
+.series-escolha label:has(input:checked) { border-color: var(--ativo); color: var(--ativo); background: color-mix(in srgb, var(--ativo) 10%, transparent); }
+.series-escolha label:has(input:focus-visible) { outline: 2px solid var(--foco); outline-offset: 2px; }
+/* Botão de alternar (ligado/desligado): o mesmo desenho das escolhas acima. */
+.botao-alternar {
+  font: inherit; font-size: 0.75rem; color: var(--tinta); cursor: pointer;
+  padding: 0.25rem 0.5rem; margin-bottom: 0.75rem;
+  background: transparent; border: 1px solid var(--linha); border-radius: 3px;
+}
+/* O símbolo é só visual: o estado já está no aria-pressed (texto alternativo vazio). */
+.botao-alternar::before { content: "○ " / ""; }
+.botao-alternar[aria-pressed="true"] { border-color: var(--ativo); color: var(--ativo); background: color-mix(in srgb, var(--ativo) 10%, transparent); }
+.botao-alternar[aria-pressed="true"]::before { content: "● " / ""; }
+.botao-alternar:focus-visible { outline: 2px solid var(--foco); outline-offset: 2px; }
+.grafico { position: relative; height: 15rem; }
+#series-estado:empty, #walter-estado:empty { display: none; }
+.grafico--walter { height: 17rem; }
+.walter-meses { margin: 0.75rem 0 0; font-size: 0.8125rem; }
+.walter-meses summary { cursor: pointer; color: var(--ativo); }
+.walter-meses summary:focus-visible { outline: 2px solid var(--foco); outline-offset: 2px; }
+.walter-meses table { border-collapse: collapse; margin-top: 0.5rem; width: 100%; font-variant-numeric: tabular-nums; }
+.walter-meses th, .walter-meses td { padding: 0.125rem 0.375rem; text-align: right; border-bottom: 1px solid var(--linha); }
+.walter-meses th[scope="row"], .walter-meses thead th:first-child { text-align: left; }
+.visualmente-escondido { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.aviso--ensaio { color: var(--wl-t); font-weight: 600; }
+.series-resumo { display: grid; grid-template-columns: auto 1fr; gap: 0.25rem 0.75rem; margin: 0.75rem 0 0; font-size: 0.8125rem; }
+.series-resumo dt { color: var(--tinta-suave); }
+.series-resumo dd { margin: 0; font-variant-numeric: tabular-nums; }
+.mapa-moldura { flex: 1; min-width: 0; position: relative; }
+.mapa { position: absolute; inset: 0; background: var(--fundo); }
+.mapa:focus-visible { outline: 3px solid var(--foco); outline-offset: -3px; }
+/* Mira: só com o mapa focado pelo teclado — marca a célula que o Enter escolhe. */
+.mira {
+  position: absolute; left: 50%; top: 50%; width: 22px; height: 22px;
+  margin: -11px 0 0 -11px; pointer-events: none; z-index: 500; display: none;
+  background:
+    linear-gradient(var(--tinta), var(--tinta)) center / 2px 100% no-repeat,
+    linear-gradient(var(--tinta), var(--tinta)) center / 100% 2px no-repeat;
+  filter: drop-shadow(0 0 1px #fff) drop-shadow(0 0 1px #fff);
+}
+.mapa:focus-visible + .mira { display: block; }
+
+.folha {
+  width: var(--largura-folha);
+  overflow-y: auto;
+  background: var(--folha);
+  border-left: 1px solid var(--linha);
+  padding: 1.5rem 1.5rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+h1, h2 { font-family: var(--serifa); font-weight: 600; margin: 0; }
+h1 { font-size: 1.5rem; line-height: 1.15; letter-spacing: -0.01em; }
+h2 { font-size: 1.0625rem; margin-bottom: 0.5rem; }
+.folha__sub { margin: 0.375rem 0 0; color: var(--tinta-suave); font-size: 0.8125rem; }
+.descricao { margin: 0 0 0.625rem; color: var(--tinta-suave); font-size: 0.8125rem; }
+
+/* Escolha da camada: lista, não botões — uma camada de cada vez. */
+.camadas { display: flex; flex-direction: column; }
+.camada {
+  display: grid;
+  grid-template-columns: 1.125rem 1fr;
+  gap: 0.5rem;
+  align-items: baseline;
+  padding: 0.375rem 0;
+  border-top: 1px solid var(--linha);
+  cursor: pointer;
+}
+.camada:last-child { border-bottom: 1px solid var(--linha); }
+.camada input { accent-color: var(--ativo); margin: 0; }
+.camada__nome { font-family: var(--serifa); font-size: 1rem; }
+.camada__nota { grid-column: 2; color: var(--tinta-suave); font-size: 0.75rem; }
+.camada--inativa { cursor: not-allowed; color: var(--tinta-suave); }
+.camada:has(input:checked) .camada__nome { color: var(--ativo); }
+.camada input:focus-visible { outline: 2px solid var(--foco); outline-offset: 2px; }
+
+.descricao--camada { margin: 0.75rem 0 0; }
+
+/* Legenda no mapa, à maneira de uma carta impressa: cor e nome lado a lado.
+   As cores aparecem com a mesma opacidade das células, para corresponderem. */
+.legenda-mapa {
+  max-width: 15rem;
+  max-height: 55vh;
+  overflow-y: auto;
+  padding: 0.625rem 0.75rem;
+  color: var(--tinta);
+  background: color-mix(in srgb, var(--folha) 94%, transparent);
+  border: 1px solid var(--linha);
+  border-radius: 3px;
+  font: 400 0.8125rem/1.35 var(--sans);
+}
+.legenda-mapa h3 { font: 600 0.9375rem/1.2 var(--serifa); margin: 0 0 0.5rem; }
+.legenda { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.legenda li { display: grid; grid-template-columns: 1.75rem 1fr; gap: 0.5rem; align-items: center; }
+.legenda__cor { height: 0.875rem; border: 1px solid rgba(0, 0, 0, 0.12); }
+.legenda-mapa__nota { margin: 0.5rem 0 0; color: var(--tinta-suave); font-size: 0.6875rem; }
+.legenda-mapa__nota--ensaio { color: var(--wl-t); font-weight: 600; }
+
+.ponto .vazio { margin: 0; color: var(--tinta-suave); }
+.ponto dl { display: grid; grid-template-columns: auto 1fr; gap: 0.25rem 1rem; margin: 0; }
+.ponto dt { color: var(--tinta-suave); font-size: 0.8125rem; }
+.ponto dd { margin: 0; font-variant-numeric: tabular-nums; }
+.ponto .classe { font-family: var(--serifa); font-size: 1.125rem; margin: 0 0 0.5rem; }
+.ponto .aviso { margin: 0.5rem 0 0; font-size: 0.75rem; color: var(--tinta-suave); }
+
+.botao-sobre {
+  margin-top: 0.75rem;
+  padding: 0.375rem 0.75rem;
+  font: inherit;
+  font-size: 0.8125rem;
+  color: var(--ativo);
+  background: transparent;
+  border: 1px solid var(--ativo);
+  border-radius: 3px;
+  cursor: pointer;
+}
+.botao-sobre:hover { background: var(--ativo); color: var(--folha); }
+.botao-sobre:focus-visible, .sobre__fechar:focus-visible, .sobre__indice a:focus-visible {
+  outline: 2px solid var(--foco); outline-offset: 2px;
+}
+
+/* "Sobre": uma página do atlas por cima do mapa. */
+.sobre {
+  width: min(44rem, calc(100vw - 2rem));
+  max-height: calc(100vh - 3rem);
+  padding: 0 1.75rem 1.5rem;
+  color: var(--tinta);
+  background: var(--folha);
+  border: 1px solid var(--linha);
+  border-radius: 4px;
+}
+.sobre::backdrop { background: rgba(30, 42, 47, 0.45); }
+.sobre__cabecalho {
+  position: sticky; top: 0;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 1.25rem 0 0.5rem;
+  background: var(--folha);
+}
+.sobre__cabecalho h2 { font-size: 1.5rem; margin: 0; }
+.sobre__fechar {
+  font: 1.75rem/1 var(--serifa); color: var(--tinta-suave);
+  background: none; border: 0; cursor: pointer; padding: 0.25rem 0.5rem;
+}
+.sobre__indice {
+  display: flex; flex-wrap: wrap; gap: 0.25rem 1rem;
+  padding: 0.5rem 0 0.75rem; border-bottom: 1px solid var(--linha);
+  font-size: 0.8125rem;
+}
+.sobre__indice a { color: var(--ativo); }
+.sobre section { max-width: 38rem; }
+.sobre h3 { font-family: var(--serifa); font-weight: 600; font-size: 1.125rem; margin: 1.5rem 0 0.5rem; }
+.sobre p, .sobre li { line-height: 1.55; }
+.sobre ul { padding-left: 1.125rem; }
+.sobre li { margin-bottom: 0.375rem; }
+.sobre__nota { color: var(--tinta-suave); font-size: 0.8125rem; }
+.definicoes { margin: 0; }
+.definicoes dt { font-family: var(--serifa); font-weight: 600; margin-top: 0.875rem; }
+.definicoes dd { margin: 0.125rem 0 0; }
+
+.creditos { margin-top: auto; color: var(--tinta-suave); font-size: 0.6875rem; line-height: 1.45; }
+.creditos p { margin: 0 0 0.375rem; }
+
+.leaflet-container { font-family: var(--sans); }
+.leaflet-interactive:focus { outline: none; }
+
+/* Ecrãs médios (tablet, meia janela) com a análise aberta: três colunas não
+   cabem e o mapa ficava com poucos píxeis — passa ao arranjo em coluna.
+   O limite repete-se em main.js (ECRA_EM_COLUNA). */
+@media (min-width: 761px) and (max-width: 1180px) {
+  .atlas:has(.analise:not([hidden])) { flex-direction: column; height: auto; }
+  .atlas:has(.analise:not([hidden])) .mapa-moldura { flex: none; height: 62vh; }
+  .atlas:has(.analise:not([hidden])) .analise { width: auto; order: 1; border-right: 0; border-top: 1px solid var(--linha); }
+  .atlas:has(.analise:not([hidden])) .folha { order: 2; width: auto; border-left: 0; border-top: 1px solid var(--linha); }
+}
+
+/* Telemóvel: o mapa em cima, a folha em baixo. */
+@media (max-width: 760px) {
+  .atlas { flex-direction: column; height: auto; }
+  .mapa-moldura { flex: none; height: 62vh; }   /* flex: 1 anularia a altura em coluna */
+  .analise { width: auto; order: 1; border-right: 0; border-top: 1px solid var(--linha); }
+  .folha { order: 2; }
+  .folha { width: auto; border-left: 0; border-top: 1px solid var(--linha); padding: 1.25rem 1rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .leaflet-zoom-anim .leaflet-zoom-animated { transition: none !important; }
+}

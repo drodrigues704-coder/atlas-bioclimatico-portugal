@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Atlas Bioclimático de Portugal Continental</title>
+  <meta name="description" content="Bioclimatologia de Portugal Continental, normal 1991–2020, segundo Rivas-Martínez, a partir da reanálise CERRA.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Spectral:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+  <link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+  <main class="atlas">
+    <aside id="analise" class="analise" aria-labelledby="t-analise" hidden>
+      <header class="analise__cabecalho">
+        <h2 id="t-analise">Análise do ponto</h2>
+        <button type="button" id="fechar-analise" class="analise__fechar" aria-label="Fechar a análise do ponto">×</button>
+      </header>
+      <p id="analise-local" class="descricao"></p>
+      <p id="analise-aviso" class="aviso" hidden></p>
+
+      <section aria-labelledby="t-series">
+        <h3 id="t-series">Séries anuais 1991–2025</h3>
+        <div id="series-escolha" class="series-escolha" role="radiogroup" aria-labelledby="t-series"></div>
+        <button type="button" id="botao-significancia" class="botao-alternar" aria-pressed="false">Significância (Mann–Kendall)</button>
+        <div class="grafico"><canvas id="grafico-serie" role="img" aria-label="Gráfico da série anual"></canvas></div>
+        <p id="series-estado" class="descricao" aria-live="polite"></p>
+        <dl id="series-resumo" class="series-resumo"></dl>
+        <p id="series-nota-mapa" class="aviso" hidden>O valor do mapa calcula-se sobre os meses médios de 1991–2020 e pode ser diferente da média dos valores de cada ano: no Ic e no Itc porque o mês mais quente e o mais frio mudam de ano para ano; na Tp, em alta montanha, porque os meses abaixo de 0 °C não são os mesmos todos os anos; no Io porque é uma razão (a média das razões de cada ano não é a razão das médias).</p>
+        <p class="aviso">Valores de cada ano, não classes: as classificações bioclimáticas referem-se a normais de 30 anos. Tendência pelo declive de Theil–Sen.</p>
+      </section>
+
+      <section aria-labelledby="t-walter">
+        <h3 id="t-walter">Diagrama ombrotérmico (Walter-Lieth)</h3>
+        <p id="walter-ensaio" class="aviso aviso--ensaio" hidden></p>
+        <div class="grafico grafico--walter"><canvas id="grafico-walter" role="img" aria-label="Diagrama de Walter-Lieth"></canvas></div>
+        <p id="walter-estado" class="descricao" aria-live="polite"></p>
+        <dl id="walter-resumo" class="series-resumo"></dl>
+        <details class="walter-meses">
+          <summary>Valores mensais</summary>
+          <table>
+            <caption class="visualmente-escondido">Normais mensais da célula</caption>
+            <thead><tr><th scope="col">Mês</th><th scope="col">T (°C)</th><th scope="col">Máx. (°C)</th><th scope="col">Mín. (°C)</th><th scope="col">P (mm)</th><th scope="col"><span class="visualmente-escondido">Período</span></th></tr></thead>
+            <tbody id="walter-tabela"></tbody>
+          </table>
+        </details>
+        <p id="walter-altitude" class="aviso"></p>
+        <p class="aviso">Normais mensais 1991–2020. Temperatura à esquerda e precipitação à direita, com 10 °C = 20 mm; acima de 100 mm a escala da precipitação é 10 vezes mais apertada (a cor cheia). Período seco onde a precipitação fica abaixo da curva da temperatura (P &lt; 2T); a faixa sob os meses marca a geada (mínima média abaixo de 0 °C).</p>
+      </section>
+    </aside>
+
+    <div class="mapa-moldura">
+      <div id="mapa" class="mapa" role="region" aria-label="Mapa de Portugal Continental. Setas deslocam, Enter escolhe a célula do centro." tabindex="0"></div>
+      <div class="mira" aria-hidden="true"></div>
+    </div>
+
+    <aside class="folha" aria-label="Camadas, legenda e diagnose">
+      <header class="folha__cabecalho">
+        <h1>Atlas Bioclimático de Portugal Continental</h1>
+        <p class="folha__sub">Normal 1991–2020 · classificação de Rivas-Martínez · reanálise CERRA</p>
+        <button type="button" id="abrir-sobre" class="botao-sobre" aria-haspopup="dialog">Sobre o Atlas e definições</button>
+      </header>
+
+      <section class="bloco" aria-labelledby="t-camadas">
+        <h2 id="t-camadas">Mapa</h2>
+        <div id="camadas" class="camadas" role="radiogroup" aria-labelledby="t-camadas"></div>
+        <p id="camada-descricao" class="descricao descricao--camada"></p>
+      </section>
+
+      <section class="bloco" aria-labelledby="t-ponto">
+        <h2 id="t-ponto">Ponto</h2>
+        <div id="ponto" class="ponto" aria-live="polite">
+          <!-- Substituído pelo main.js. Se ficar à vista, o JavaScript não correu. -->
+          <p class="vazio">A carregar… Se esta mensagem não desaparecer, a app não conseguiu arrancar: abra-a através de um servidor local (ver o README), não diretamente do disco.</p>
+        </div>
+      </section>
+
+      <footer class="creditos">
+        <p>Contém informação modificada do Copernicus Climate Change Service [2026] — reanálises CERRA e CERRA-Land, licença CC-BY 4.0; os dados foram recortados, agregados em normais e classificados. Nem a Comissão Europeia nem o ECMWF são responsáveis pelo uso que possa ser feito desta informação.</p>
+        <p>Limites: CAOP 2021 © DGT. Validação: normais climatológicas do IPMA. Classificação: Rivas-Martínez, Rivas-Sáenz &amp; Penas (2011), <i>Global Geobotany</i> 1.</p>
+        <p>O mapa é uma suavização visual de células da CERRA de ~5,5 km; o clique mostra o valor e o contorno da célula. Junto à costa, algumas células mostram o valor da célula de terra mais próxima — o ponto indica quando.</p>
+      </footer>
+    </aside>
+  </main>
+
+  <dialog id="sobre" class="sobre" aria-labelledby="t-sobre">
+    <header class="sobre__cabecalho">
+      <h2 id="t-sobre">Sobre o Atlas</h2>
+      <button type="button" class="sobre__fechar" id="fechar-sobre" aria-label="Fechar">×</button>
+    </header>
+
+    <nav class="sobre__indice" aria-label="Secções">
+      <a href="#s-o-que-e">O que é</a>
+      <a href="#s-dados">Dados e método</a>
+      <a href="#s-indices">Índices</a>
+      <a href="#s-classes">Classificações</a>
+      <a href="#s-limites">Limitações</a>
+      <a href="#s-fontes">Fontes</a>
+    </nav>
+
+    <section id="s-o-que-e">
+      <h3>O que é</h3>
+      <p>Um atlas da bioclimatologia de Portugal Continental para o clima normal de 1991–2020, segundo a classificação bioclimática mundial de Rivas-Martínez. A bioclimatologia relaciona o clima com a distribuição da vegetação: os termotipos e os ombrotipos ajudam a explicar onde vive cada comunidade vegetal.</p>
+      <p>Escolha um mapa na lista e clique num lugar para ver os índices desse sítio.</p>
+    </section>
+
+    <section id="s-dados">
+      <h3>Dados e método</h3>
+      <ul>
+        <li><b>Temperatura:</b> reanálise CERRA (Copernicus), temperatura do ar a 2 m de 3 em 3 horas. Máxima e mínima diárias = maior e menor das 8 análises de cada dia; temperatura média = (máxima + mínima) / 2, como no IPMA.</li>
+        <li><b>Precipitação:</b> reanálise CERRA-Land (análise com udómetros), diária, acumulada em 24 h até às 06 UTC e contada no dia em que termina. Comparada com as normais 1991–2020 das 51 estações do IPMA: total anual igual na mediana (razão 1,01; 80 % das estações entre 0,91 e 1,17), um pouco mais de chuva no verão (≈ +20 %) e ombrotipo igual em 43 das 51 estações.</li>
+        <li><b>Normal climatológica:</b> média dos valores mensais de cada ano de 1991 a 2020 (método da OMM).</li>
+        <li><b>Células:</b> os dados são células da CERRA de cerca de 5,5 km de lado; o valor de cada uma representa a célula inteira, não um ponto.</li>
+        <li><b>Mapa suavizado:</b> para a leitura ser mais fácil, os valores das células são interpolados (linearmente, entre os centros das células) para uma grelha de cerca de 1 km, e as classes são calculadas sobre esses valores interpolados. É só uma suavização visual — não acrescenta detalhe que os dados não têm. Ao clicar, o painel mostra o valor da célula e o seu contorno aparece no mapa.</li>
+        <li><b>Costa:</b> nas células em que o modelo vê sobretudo mar, mostra-se o valor da célula de terra mais próxima (o painel do ponto indica quando).</li>
+        <li><b>Validação:</b> comparação com as normais 1991–2020 de 51 estações do IPMA.</li>
+        <li><b>Séries anuais (análise do ponto):</b> os mesmos índices calculados com os meses de cada ano, de 1991 a 2025, e a precipitação anual. A linha de referência é a média desses valores anuais em 1991–2020. No Ic e no Itc essa média é diferente do valor do mapa, que se calcula sobre os meses médios de 1991–2020, porque o mês mais quente e o mais frio mudam de ano para ano; na Tp acontece o mesmo em alta montanha, porque os meses abaixo de 0 °C variam de ano para ano; e no Io, porque é uma razão (a média das razões de cada ano não é a razão das médias). A tendência é o declive de Theil–Sen, por década, e a comparação de períodos é a diferença entre as médias de 2011–2025 e de 1991–2005.</li>
+        <li><b>Diagrama ombrotérmico (Walter-Lieth):</b> as normais mensais da célula — temperatura média, à esquerda, e precipitação, à direita, na escala de Walter &amp; Lieth (10 °C = 20 mm; acima de 100 mm a precipitação é desenhada 10 vezes mais apertada e a cor cheia). Onde a curva da precipitação desce abaixo da da temperatura (P &lt; 2T) o mês é seco. A faixa sob os meses marca os meses com mínima média abaixo de 0 °C. As temperaturas são as da célula de ~5,5 km levadas do relevo do modelo (a altitude a que foram calculadas) à altitude do ponto clicado (DEM de 25 m agregado a 500 m) com 0,65 °C por 100 m; a precipitação é a da célula. Nos fundos de vale o diagrama avisa que as noites frias (inversões, lagos de ar frio) não estão representadas. A precipitação diária da CERRA-Land conta para o dia em que termina a acumulação (06 UTC), como nas estações do IPMA (09–09 UTC).</li>
+        <li><b>Significância da tendência</b> (botão "Significância" na análise do ponto): teste de Mann–Kendall clássico, bilateral, ao nível de 5 % (p &lt; 0,05). Não se corrige a autocorrelação entre anos seguidos: verificou-se que é baixa nestas séries e que a correção de Hamed &amp; Rao (1998) mudaria o resultado em menos de 7 % das células, nuns casos para mais e noutros para menos. Uma tendência "não significativa" não quer dizer que não haja mudança — só que 35 anos não chegam para a distinguir da variação natural de ano para ano.</li>
+      </ul>
+    </section>
+
+    <section id="s-indices">
+      <h3>Índices</h3>
+      <p class="sobre__nota">Temperaturas em °C. Os índices "em décimas" multiplicam a temperatura por 10.</p>
+      <dl class="definicoes">
+        <dt>T — temperatura média anual</dt>
+        <dd>Média das temperaturas médias dos 12 meses.</dd>
+        <dt>M e m</dt>
+        <dd>Média das temperaturas máximas (M) e das mínimas (m) do mês mais frio.</dd>
+        <dt>It — índice de termicidade</dt>
+        <dd>It = 10 × (T + M + m). Mede a intensidade do frio de inverno, que limita muitas plantas.</dd>
+        <dt>Ic — índice de continentalidade simples</dt>
+        <dd>Diferença entre a temperatura média do mês mais quente e a do mês mais frio. Baixo junto ao mar, alto no interior.</dd>
+        <dt>Itc — índice de termicidade compensado</dt>
+        <dd>O It corrigido pela continentalidade, para que lugares muito oceânicos ou muito continentais sejam comparáveis. Com Ic entre 8 e 18, Itc = It; abaixo de 8 subtrai-se 10 × (8 − Ic); acima de 18 soma-se uma compensação crescente.</dd>
+        <dt>Tp — temperatura positiva anual</dt>
+        <dd>Soma, em décimas, das temperaturas médias dos meses acima de 0 °C. Usa-se em vez do Itc nos climas frios ou muito continentais.</dd>
+        <dt>Io — índice ombrotérmico anual</dt>
+        <dd>Io = 10 × Pp / Tp, em que Pp é a precipitação (mm) dos meses com temperatura média acima de 0 °C. Mede a humidade do clima.</dd>
+        <dt>Ios2, Ios3, Ios4 — índices ombrotérmicos estivais</dt>
+        <dd>O mesmo cálculo para o verão: os dois meses mais quentes de junho–agosto (Ios2), junho–agosto (Ios3) e maio–agosto (Ios4). Medem a seca de verão.</dd>
+      </dl>
+    </section>
+
+    <section id="s-classes">
+      <h3>Classificações</h3>
+      <dl class="definicoes">
+        <dt>Continentalidade</dt>
+        <dd>Pelo Ic: hiperoceânico até 11 (ultra, eu, sub), oceânico de 11 a 21 (semi-hiperoceânico, euoceânico, semicontinental), continental acima de 21.</dd>
+        <dt>Macrobioclima</dt>
+        <dd>Mediterrânico quando há seca de verão: Ios2 até 2, sem compensação pela chuva de maio–agosto segundo a tabela de compensação de Rivas-Martínez et al. (2011). Caso contrário, Temperado.</dd>
+        <dt>Termotipo</dt>
+        <dd>Andar térmico (por exemplo, termomediterrânico, mesomediterrânico, supratemperado), definido pelo Itc — ou pelo Tp quando Ic ≥ 21 ou Itc &lt; 120. Cada termotipo divide-se em horizonte inferior (a metade mais quente) e superior.</dd>
+        <dt>Ombrotipo</dt>
+        <dd>Classe de humidade pelo Io: árido, semiárido (1–2), seco (2–3,6), sub-húmido (3,6–6), húmido (6–12), hiper-húmido (12–24), entre outros.</dd>
+        <dt>Bioclima</dt>
+        <dd>Combina o macrobioclima com a humidade e a continentalidade — por exemplo, Mediterrânico pluviestacional-oceânico ou Temperado oceânico.</dd>
+        <dt>Variantes</dt>
+        <dd>Submediterrânica: clima temperado com pelo menos um mês de verão seco (P &lt; 2,8 T). Estépica: verão mais chuvoso do que o inverno, continentalidade alta e algum mês de verão seco.</dd>
+        <dt>Köppen-Geiger (complemento)</dt>
+        <dd>A classificação climática mais usada no mundo, segundo Peel, Finlayson &amp; McMahon (2007). Em Portugal: Csa (verão seco e quente, mês mais quente ≥ 22 °C), Csb (verão seco e temperado), Cfb (sem estação seca: o mês mais seco do verão não tem menos de 40 mm, ou tem mais de um terço do mês mais chuvoso do inverno) e BSk (estepe fria: a precipitação anual fica abaixo de 10 vezes um limiar que depende da temperatura média). As cores são as dos mapas mundiais de Beck et al. (2018).</dd>
+      </dl>
+      <p class="sobre__nota">Os limites das classes de Rivas-Martínez seguem as tabelas de Rivas-Martínez et al. (2011): num limite exato, o valor pertence à classe de baixo. No Köppen-Geiger seguem a Tabela 1 de Peel et al. (2007) (por exemplo, um mês mais quente de 22,0 °C já é "verão quente").</p>
+    </section>
+
+    <section id="s-limites">
+      <h3>Limitações</h3>
+      <ul>
+        <li>Uma célula de 5,5 km não vê o frio dos fundos de vale: nas estações de vale, as mínimas da CERRA chegam a ser 2–4 °C mais altas do que as observadas.</li>
+        <li>As máximas da CERRA são, em média, 0,8 °C mais baixas e as mínimas 0,9 °C mais altas do que as do IPMA; na média (máx. + mín.) / 2 os dois erros quase se anulam (+0,03 °C).</li>
+        <li>A precipitação da CERRA-Land tem o total anual certo (mediana igual à do IPMA), mas é cerca de 20 % mais alta no verão (mais no Alentejo e no Algarve, onde os totais de verão são muito pequenos) e cerca de 7 % mais baixa nas serras do Noroeste acima de 800 m. O ombrotipo coincide com o das estações do IPMA em 43 de 51.</li>
+        <li>Nos cabos e na costa estreita, o clima mostrado é o da célula, mais continental do que o da linha de costa.</li>
+        <li>As classificações referem-se ao clima normal de 30 anos, não a anos isolados.</li>
+      </ul>
+    </section>
+
+    <section id="s-fontes">
+      <h3>Fontes</h3>
+      <ul>
+        <li>Rivas-Martínez, S., Rivas-Sáenz, S. &amp; Penas, A. (2011). Worldwide bioclimatic classification system. <i>Global Geobotany</i> 1: 1–634.</li>
+        <li>Copernicus Climate Change Service: CERRA e CERRA-Land, licença CC-BY 4.0. Os dados foram modificados (recortados, agregados em normais e classificados).</li>
+        <li>Peel, M. C., Finlayson, B. L. &amp; McMahon, T. A. (2007). Updated world map of the Köppen-Geiger climate classification. <i>Hydrology and Earth System Sciences</i> 11: 1633–1644.</li>
+        <li>Beck, H. E. et al. (2018). Present and future Köppen-Geiger climate classification maps at 1-km resolution. <i>Scientific Data</i> 5: 180214 (cores das classes).</li>
+        <li>Walter, H. &amp; Lieth, H. (1960). <i>Klimadiagramm-Weltatlas</i> (diagrama ombrotérmico).</li>
+        <li>Normais climatológicas 1991–2020: IPMA. Limites administrativos: CAOP 2021, DGT. Modelo digital do terreno de 25 m (altitude do ponto no diagrama).</li>
+      </ul>
+    </section>
+  </dialog>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.1/chart.umd.min.js"></script>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

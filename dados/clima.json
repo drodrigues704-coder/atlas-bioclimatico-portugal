@@ -1,0 +1,19 @@
+{
+  "nx": 68,
+  "periodo_t": "1991–2020",
+  "periodo_p": "1991–2020",
+  "ensaio_p": false,
+  "temperatura_media": "t_media_maxmin",
+  "dia_da_precipitacao": "dia_do_fim",
+  "altitude": "alt_media",
+  "gradiente": 0.65,
+  "altitude_grelha": {
+    "x0": -1059500.0,
+    "y1": 5184500.0,
+    "resolucao_m": 500,
+    "largura": 742,
+    "altura": 1502,
+    "nodata": 65535,
+    "crs": "EPSG:3857"
+  }
+}
