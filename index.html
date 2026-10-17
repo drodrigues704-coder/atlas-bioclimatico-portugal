@@ -2,7 +2,7 @@
 <html lang="pt-PT">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Atlas Bioclimático de Portugal Continental</title>
   <meta name="description" content="Bioclimatologia de Portugal Continental, normal 1991–2020, segundo Rivas-Martínez, a partir da reanálise CERRA.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -58,9 +58,9 @@
 
     <aside class="folha" aria-label="Camadas, legenda e diagnose">
       <header class="folha__cabecalho">
-        <h1>Atlas Bioclimático de Portugal Continental</h1>
+        <h1>Atlas Bioclimático<span class="so-largo"> de Portugal Continental</span></h1>
         <p class="folha__sub">Normal 1991–2020 · classificação de Rivas-Martínez · reanálise CERRA</p>
-        <button type="button" id="abrir-sobre" class="botao-sobre" aria-haspopup="dialog">Sobre o Atlas e definições</button>
+        <button type="button" id="abrir-sobre" class="botao-sobre" aria-haspopup="dialog">Sobre<span class="so-largo"> o Atlas e definições</span></button>
       </header>
 
       <section class="bloco" aria-labelledby="t-camadas">
@@ -80,9 +80,32 @@
       <footer class="creditos">
         <p>Contém informação modificada do Copernicus Climate Change Service [2026] — reanálises CERRA e CERRA-Land, licença CC-BY 4.0; os dados foram recortados, agregados em normais e classificados. Nem a Comissão Europeia nem o ECMWF são responsáveis pelo uso que possa ser feito desta informação.</p>
         <p>Limites: CAOP 2021 © DGT. Validação: normais climatológicas do IPMA. Classificação: Rivas-Martínez, Rivas-Sáenz &amp; Penas (2011), <i>Global Geobotany</i> 1.</p>
-        <p>O mapa é uma suavização visual de células da CERRA de ~5,5 km; o clique mostra o valor e o contorno da célula. Junto à costa, algumas células mostram o valor da célula de terra mais próxima — o ponto indica quando.</p>
+        <p>O mapa é uma suavização visual de células da CERRA de ~5,5 km; o ponto escolhido mostra o valor e o contorno da célula. Junto à costa, algumas células mostram o valor da célula de terra mais próxima — o ponto indica quando.</p>
       </footer>
     </aside>
+
+    <!-- Telemóvel (≤ 760 px): barra de cima e painel inferior deslizante. Ficam
+         vazios aqui: o js/movel.js muda para lá os blocos acima (cabeçalho,
+         camadas, créditos, ponto, análise) e devolve-os quando o ecrã alarga. -->
+    <div id="barra-movel" class="barra-movel"></div>
+    <section id="gaveta" class="gaveta" aria-label="Painel do mapa" data-estado="recolhido">
+      <div class="gaveta__cabecalho">
+        <button type="button" id="gaveta-pega" class="gaveta__pega" aria-controls="gaveta-corpo" aria-expanded="false" aria-label="Painel recolhido. Abrir a meia altura"><span class="gaveta__barra" aria-hidden="true"></span></button>
+        <div class="gaveta__separadores" role="tablist" aria-label="Conteúdo do painel">
+          <button type="button" role="tab" id="sep-mapas" aria-controls="painel-mapas" aria-selected="true">Mapas</button>
+          <button type="button" role="tab" id="sep-ponto" aria-controls="painel-ponto" aria-selected="false" tabindex="-1">Ponto</button>
+          <button type="button" role="tab" id="sep-analise" aria-controls="painel-analise" aria-selected="false" tabindex="-1" disabled>Análise</button>
+        </div>
+        <p id="gaveta-linha" class="gaveta__linha"></p>
+      </div>
+      <div id="gaveta-corpo" class="gaveta__corpo">
+        <div role="tabpanel" id="painel-mapas" aria-labelledby="sep-mapas" tabindex="0"></div>
+        <div role="tabpanel" id="painel-ponto" aria-labelledby="sep-ponto" tabindex="0" hidden>
+          <div class="gaveta__acoes"><button type="button" id="ver-analise" class="gaveta__ver-analise" hidden>Ver análise</button></div>
+        </div>
+        <div role="tabpanel" id="painel-analise" aria-labelledby="sep-analise" tabindex="0" hidden></div>
+      </div>
+    </section>
   </main>
 
   <dialog id="sobre" class="sobre" aria-labelledby="t-sobre">
@@ -103,7 +126,7 @@
     <section id="s-o-que-e">
       <h3>O que é</h3>
       <p>Um atlas da bioclimatologia de Portugal Continental para o clima normal de 1991–2020, segundo a classificação bioclimática mundial de Rivas-Martínez. A bioclimatologia relaciona o clima com a distribuição da vegetação: os termotipos e os ombrotipos ajudam a explicar onde vive cada comunidade vegetal.</p>
-      <p>Escolha um mapa na lista e clique num lugar para ver os índices desse sítio.</p>
+      <p>Escolha um mapa na lista e um lugar no mapa para ver os índices desse sítio.</p>
     </section>
 
     <section id="s-dados">
@@ -113,7 +136,7 @@
         <li><b>Precipitação:</b> reanálise CERRA-Land (análise com udómetros), diária, acumulada em 24 h até às 06 UTC e contada no dia em que termina. Comparada com as normais 1991–2020 das 51 estações do IPMA: total anual igual na mediana (razão 1,01; 80 % das estações entre 0,91 e 1,17), um pouco mais de chuva no verão (≈ +20 %) e ombrotipo igual em 43 das 51 estações.</li>
         <li><b>Normal climatológica:</b> média dos valores mensais de cada ano de 1991 a 2020 (método da OMM).</li>
         <li><b>Células:</b> os dados são células da CERRA de cerca de 5,5 km de lado; o valor de cada uma representa a célula inteira, não um ponto.</li>
-        <li><b>Mapa suavizado:</b> para a leitura ser mais fácil, os valores das células são interpolados (linearmente, entre os centros das células) para uma grelha de cerca de 1 km, e as classes são calculadas sobre esses valores interpolados. É só uma suavização visual — não acrescenta detalhe que os dados não têm. Ao clicar, o painel mostra o valor da célula e o seu contorno aparece no mapa.</li>
+        <li><b>Mapa suavizado:</b> para a leitura ser mais fácil, os valores das células são interpolados (linearmente, entre os centros das células) para uma grelha de cerca de 1 km, e as classes são calculadas sobre esses valores interpolados. É só uma suavização visual — não acrescenta detalhe que os dados não têm. Ao escolher um lugar, o painel mostra o valor da célula e o seu contorno aparece no mapa.</li>
         <li><b>Costa:</b> nas células em que o modelo vê sobretudo mar, mostra-se o valor da célula de terra mais próxima (o painel do ponto indica quando).</li>
         <li><b>Validação:</b> comparação com as normais 1991–2020 de 51 estações do IPMA.</li>
         <li><b>Séries anuais (análise do ponto):</b> os mesmos índices calculados com os meses de cada ano, de 1991 a 2025, e a precipitação anual. A linha de referência é a média desses valores anuais em 1991–2020. No Ic e no Itc essa média é diferente do valor do mapa, que se calcula sobre os meses médios de 1991–2020, porque o mês mais quente e o mais frio mudam de ano para ano; na Tp acontece o mesmo em alta montanha, porque os meses abaixo de 0 °C variam de ano para ano; e no Io, porque é uma razão (a média das razões de cada ano não é a razão das médias). A tendência é o declive de Theil–Sen, por década, e a comparação de períodos é a diferença entre as médias de 2011–2025 e de 1991–2005.</li>

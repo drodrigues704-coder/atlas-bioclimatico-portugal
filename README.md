@@ -12,11 +12,13 @@ Rivas-Martínez, com a de Köppen-Geiger como complemento.
   compensada (Itc), temperatura positiva (Tp), temperatura média,
   macrobioclima, termotipos, ombrotipos, bioclimas, índice ombrotérmico (Io)
   e Köppen-Geiger.
-- **Ao clicar num lugar:** a classificação completa da célula (com os
+- **Ao escolher um lugar:** a classificação completa da célula (com os
   horizontes), os índices, as séries anuais 1991–2025 (temperatura,
   precipitação, Io e outros índices) com tendência de Theil–Sen e
   significância de Mann–Kendall, e o diagrama ombrotérmico de Walter-Lieth
   ajustado à altitude do ponto.
+- **No telemóvel:** o mapa ocupa o ecrã e os mapas, o ponto e a análise
+  ficam num painel que se puxa de baixo.
 - **"Sobre o Atlas e definições"** explica os dados, o método, cada índice e
   classificação, as limitações e as fontes.
 

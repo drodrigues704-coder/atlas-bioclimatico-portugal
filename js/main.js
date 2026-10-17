@@ -6,6 +6,7 @@ import { carregarCelula, descricaoGrafico, desenharGrafico, mapaDifereDaMedia, n
 import { ajustarAltitude, altitudeEm, desenharWalterLieth, grelhaDeAltitude, resumoClima, tabelaMensal } from "./walter.js";
 import { codigosPresentes, corSobreClaro, criarSimbologia, formatarNumero } from "./simbologia.js";
 import { descodificar, imagem, pintar } from "./suave.js";
+import { criarMovel, indicacao } from "./movel.js";
 
 const $ = (id) => document.getElementById(id);
 const PASTA_CLIMA = "dados/clima";            // clima mensal por célula: dados/clima/linha_<j>.json
@@ -16,8 +17,9 @@ const DESTAQUE = [
   { fill: false, color: "#ffffff", weight: 4, opacity: 1 },
   { fill: false, color: "#1e2a2f", weight: 2, opacity: 1 },
 ];
-// Ecrã em que o painel de análise fica por baixo do mapa (ver estilo.css).
-const ECRA_EM_COLUNA = window.matchMedia("(max-width: 1180px)");
+// Ecrã médio em que o painel de análise fica por baixo do mapa (ver estilo.css).
+// Abaixo de 761 px é o arranjo de telemóvel (movel.js), sem página a deslizar.
+const ECRA_EM_COLUNA = window.matchMedia("(min-width: 761px) and (max-width: 1180px)");
 const TEMA_ESCURO = window.matchMedia("(prefers-color-scheme: dark)");
 
 // Pequeno construtor de elementos: o texto entra sempre como texto (nunca HTML).
@@ -82,15 +84,21 @@ function descricao(camada, metadados) {
 
 // Legenda no canto inferior direito do mapa. Mostra só as classes ou os
 // intervalos que existem no mapa escolhido (do valor mais baixo, em cima, ao
-// mais alto), com a mesma opacidade das células.
+// mais alto), com a mesma opacidade das células. No telemóvel fica recolhida
+// atrás do botão "Legenda" (o botão só aparece aí — ver estilo.css).
 function criarControloLegenda(L) {
   const Controlo = L.Control.extend({
     options: { position: "bottomright" },
     onAdd() {
-      this._div = el("div", { class: "legenda-mapa leaflet-control", role: "region", "aria-label": "Legenda" });
-      L.DomEvent.disableClickPropagation(this._div);
-      L.DomEvent.disableScrollPropagation(this._div);
-      return this._div;
+      const botao = el("button", { type: "button", class: "legenda-mapa__botao", "aria-expanded": "false",
+                                   "aria-controls": "legenda-conteudo" }, "Legenda");
+      botao.addEventListener("click", () =>
+        botao.setAttribute("aria-expanded", String(botao.getAttribute("aria-expanded") !== "true")));
+      this._conteudo = el("div", { id: "legenda-conteudo", class: "legenda-mapa__conteudo" });
+      const div = el("div", { class: "legenda-mapa leaflet-control", role: "region", "aria-label": "Legenda" }, botao, this._conteudo);
+      L.DomEvent.disableClickPropagation(div);
+      L.DomEvent.disableScrollPropagation(div);
+      return div;
     },
     mostrar(camada, simb, presentes, aviso = null) {
       const entradas = simb.entradas.filter((e) => presentes.has(e.codigo));
@@ -102,7 +110,7 @@ function criarControloLegenda(L) {
       ];
       if (camada.tipo === "intervalos") partes.push(el("p", { class: "legenda-mapa__nota" }, "Limite superior incluído em cada intervalo."));
       if (aviso) partes.push(el("p", { class: "legenda-mapa__nota legenda-mapa__nota--ensaio" }, aviso));
-      this._div.replaceChildren(...partes);
+      this._conteudo.replaceChildren(...partes);
     },
   });
   return new Controlo();
@@ -260,7 +268,7 @@ function criarDiagrama(metaClima) {
 // --- Painel esquerdo "Análise do ponto" ---------------------------------------
 // `metaSeries` é null se dados/series.json não carregou: o painel abre só
 // com essa mensagem e o resto do Atlas funciona.
-function criarAnalise(mapa, metaSeries, mostrarDiagrama) {
+function criarAnalise(mapa, metaSeries, mostrarDiagrama, movel) {
   const painel = $("analise");
   const tela = $("grafico-serie");
   let variavel = SERIES[0];
@@ -335,9 +343,10 @@ function criarAnalise(mapa, metaSeries, mostrarDiagrama) {
     const este = ++pedido;
     const estava = !painel.hidden;
     painel.hidden = false;
-    if (!estava) {
+    if (!estava && !movel.ativo()) {
       // O mapa muda de tamanho (e, em ecrãs médios, de arranjo): manter a
-      // célula escolhida à vista em vez do centro antigo.
+      // célula escolhida à vista em vez do centro antigo. No telemóvel o mapa
+      // não muda de tamanho e quem o desloca é o movel.js.
       mapa.invalidateSize({ pan: false });
       mapa.panTo([lat, lon], { animate: false });
     }
@@ -383,6 +392,12 @@ function ligarSobre() {
 }
 
 async function iniciar() {
+  // Primeiro o arranjo de telemóvel, para o mapa nascer já com o tamanho certo.
+  const movel = criarMovel();
+  // A indicação inicial muda com o arranjo ("Clique…" / "Toque…").
+  movel.aoMudar((ativo) => {
+    if ($("ponto").textContent.trim() === indicacao(!ativo)) mensagem(indicacao(ativo));
+  });
   ligarSobre();
   const L = window.L;
   if (!L) throw new Error("a biblioteca de mapas (Leaflet) não carregou — verifique a ligação à internet");
@@ -390,6 +405,7 @@ async function iniciar() {
 
   const mapa = L.map("mapa", { zoomControl: true, minZoom: 6, maxZoom: 12, keyboard: true })
     .setView(VISTA_INICIAL.centro, VISTA_INICIAL.zoom);
+  movel.usarMapa(mapa);
   const bases = Object.fromEntries(MAPAS_BASE.map((b) =>
     [b.nome, L.tileLayer(b.url, { attribution: b.atribuicao, maxZoom: 16 })]));
   // ?base=Escuro (ou Satélite) abre com esse mapa base.
@@ -408,7 +424,7 @@ async function iniciar() {
   const [celulas, metadados, suave, metaSeries, metaClima] = await Promise.all(
     [carregar(DADOS.celulas), carregar(DADOS.metadados), carregar(DADOS.suave),
      secundario(DADOS.series), secundario(DADOS.clima)]);
-  const abrirAnalise = criarAnalise(mapa, metaSeries, criarDiagrama(metaClima));
+  const abrirAnalise = criarAnalise(mapa, metaSeries, criarDiagrama(metaClima), movel);
 
   let simb;
   const camadaGeo = L.geoJSON(celulas, { pane: "cliques", style: () => ({}) }).addTo(mapa);
@@ -428,6 +444,8 @@ async function iniciar() {
   const contorno = L.layerGroup().addTo(mapa);    // contorno da célula escolhida
 
   function escolher(feature, lat, lon) {
+    // Telemóvel: o painel do ponto fica à vista antes de mudar (aria-live).
+    movel.aoEscolherPonto(lat, lon);
     contorno.clearLayers();
     for (const estilo of DESTAQUE) contorno.addLayer(L.geoJSON(feature, { pane: "destaque", style: estilo, interactive: false }));
     mostrarPonto(feature.properties, lat, lon, metadados);
@@ -482,8 +500,8 @@ async function iniciar() {
   const escolherCamada = (c) => aplicar(c).catch((erro) => mensagem(`Não foi possível mostrar este mapa: ${erro.message}.`));
   desenharEscolha(escolherCamada, inicial, metadados);
   await aplicar(inicial);
-  mapa.fitBounds(camadaGeo.getBounds(), { padding: [12, 12] });
-  mensagem("Clique no mapa para ver os índices desse lugar. Com o teclado: foque o mapa, desloque-o com as setas e carregue em Enter.");
+  mapa.fitBounds(camadaGeo.getBounds(), movel.margensMapa());
+  mensagem(indicacao(movel.ativo()));
 
   // ?ponto=41.23,-8.68 abre já com esse lugar escolhido.
   const ponto = new URLSearchParams(location.search).get("ponto")?.split(",").map(Number);
