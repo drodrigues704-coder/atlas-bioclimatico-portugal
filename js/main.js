@@ -659,9 +659,8 @@ async function iniciar() {
       if ($("ponto").querySelector(".estacao")) mensagem(indicacao(movel.ativo()));
     },
   });
-  controloCamadas.addOverlay(estacoes.grupo, "Estações do IPMA");
-  // Botão à vista para ligar e desligar as estações: dentro do controlo de
-  // camadas (fechado) ninguém as encontrava. Fica sincronizado com a caixa de lá.
+  // Botão à vista para ligar e desligar as estações (dentro do controlo de
+  // camadas, fechado, ninguém as encontrava).
   const BotaoEstacoes = L.Control.extend({
     onAdd() {
       const b = el("button", { type: "button", class: "botao-estacoes", "aria-pressed": "false" }, "Estações do IPMA");
