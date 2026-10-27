@@ -108,4 +108,5 @@ export function fichaEstacao(p, metadados) {
 export const NOTA_ALTITUDE = "Célula: média do terreno. Modelo: a altitude a que a CERRA calcula a temperatura. " +
   "As comparações não corrigem a altitude, tal como os mapas.";
 export const NOTA_COMPARACAO = "Normais 1991–2020. Precipitação: o que o Atlas tem a mais (+) ou a menos (−); verão = " +
-  "junho a agosto. Ombrotipo e macrobioclima do IPMA calculados com as normais da estação.";
+  "junho a agosto. Ombrotipo e macrobioclima do IPMA calculados com as normais da estação. " +
+  "Fonte: IPMA, Normais Climatológicas 1991–2020.";

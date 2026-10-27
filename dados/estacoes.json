@@ -1215,7 +1215,7 @@
       "type": "Feature",
       "properties": {
         "numero": "615",
-        "nome": "PONTE LIMA",
+        "nome": "PONTE DE LIMA",
         "local": "Escola Agrícola",
         "alt_estacao": 40,
         "id_celula": 6830,
@@ -1525,7 +1525,7 @@
       "type": "Feature",
       "properties": {
         "numero": "866",
-        "nome": "VILA REAL DE SANTO ANTONIO",
+        "nome": "VILA REAL DE SANTO ANTÓNIO",
         "local": null,
         "alt_estacao": 5,
         "id_celula": 300,

@@ -173,7 +173,18 @@ h2 { font-size: 1.0625rem; margin-bottom: 0.5rem; }
 .legenda__estacao {
   flex: none; width: 15px; height: 15px; margin-left: 0.25rem; border-radius: 50%;
   border: 2px solid #1e2a2f; background: radial-gradient(circle, #1e2a2f 0 1.75px, #ffffff 2.25px);
+  box-shadow: 0 0 0 1px var(--tinta);   /* contorno visível também no tema escuro */
 }
+/* Botão à vista para ligar e desligar as estações (o controlo de camadas fica fechado). */
+.botao-estacoes {
+  font: 600 0.8125rem/1 var(--sans); color: var(--tinta); cursor: pointer;
+  min-height: 44px; padding: 0 0.75rem; background: var(--folha); border: 2px solid rgba(0, 0, 0, 0.2);
+  border-radius: 4px; background-clip: padding-box;
+}
+.botao-estacoes::before { content: "○ " / ""; }
+.botao-estacoes[aria-pressed="true"] { color: var(--ativo); border-color: var(--ativo); }
+.botao-estacoes[aria-pressed="true"]::before { content: "● " / ""; }
+.botao-estacoes:focus-visible { outline: 2px solid var(--foco); outline-offset: 2px; }
 
 /* Estações do IPMA no mapa: o anel é focável pelo teclado. */
 /* Halo claro por fora do contorno azul: o foco vê-se em qualquer mapa base e tema. */

@@ -660,6 +660,20 @@ async function iniciar() {
     },
   });
   controloCamadas.addOverlay(estacoes.grupo, "Estações do IPMA");
+  // Botão à vista para ligar e desligar as estações: dentro do controlo de
+  // camadas (fechado) ninguém as encontrava. Fica sincronizado com a caixa de lá.
+  const BotaoEstacoes = L.Control.extend({
+    onAdd() {
+      const b = el("button", { type: "button", class: "botao-estacoes", "aria-pressed": "false" }, "Estações do IPMA");
+      L.DomEvent.disableClickPropagation(b);
+      b.addEventListener("click", () => {
+        if (mapa.hasLayer(estacoes.grupo)) mapa.removeLayer(estacoes.grupo); else mapa.addLayer(estacoes.grupo);
+      });
+      mapa.on("layeradd layerremove", () => b.setAttribute("aria-pressed", String(mapa.hasLayer(estacoes.grupo))));
+      return b;
+    },
+  });
+  new BotaoEstacoes({ position: "topright" }).addTo(mapa);
 
   async function aplicar(camada) {
     const pedido = ++pedidoAtual;
