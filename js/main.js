@@ -1,7 +1,8 @@
 // Arranque: carrega os dados, desenha o mapa, liga a escolha de camadas, a
 // legenda, o painel do ponto e a janela "Sobre".
 import { CAMADAS, CAMADAS_POR_VIR, DADOS, MAPAS_BASE, OPACIDADE_CELULAS, SERIES, VISTA_INICIAL } from "./config.js";
-import { celulaEm } from "./geometria.js";
+import { celulaEm, pontoNaGeometria } from "./geometria.js";
+import { fichaEstacao, NOTA_ALTITUDE, NOTA_COMPARACAO, rotuloEstacao } from "./estacoes.js";
 import { carregarCelula, descricaoGrafico, desenharGrafico, mapaDifereDaMedia, numero, ROTULO_REFERENCIA, resumo } from "./serie.js";
 import { ajustarAltitude, altitudeEm, desenharWalterLieth, grelhaDeAltitude, resumoClima, tabelaMensal } from "./walter.js";
 import { codigosPresentes, corSobreClaro, criarSimbologia, formatarNumero } from "./simbologia.js";
@@ -94,7 +95,11 @@ function criarControloLegenda(L) {
                                    "aria-controls": "legenda-conteudo" }, "Legenda");
       botao.addEventListener("click", () =>
         botao.setAttribute("aria-expanded", String(botao.getAttribute("aria-expanded") !== "true")));
-      this._conteudo = el("div", { id: "legenda-conteudo", class: "legenda-mapa__conteudo" });
+      this._botao = botao;
+      this._classes = el("div");
+      // Linha da camada das estações: só com a camada ligada (ver estacoes()).
+      this._estacoes = el("p", { class: "legenda-mapa__estacoes", hidden: "" });
+      this._conteudo = el("div", { id: "legenda-conteudo", class: "legenda-mapa__conteudo" }, this._classes, this._estacoes);
       const div = el("div", { class: "legenda-mapa leaflet-control", role: "region", "aria-label": "Legenda" }, botao, this._conteudo);
       L.DomEvent.disableClickPropagation(div);
       L.DomEvent.disableScrollPropagation(div);
@@ -110,7 +115,20 @@ function criarControloLegenda(L) {
       ];
       if (camada.tipo === "intervalos") partes.push(el("p", { class: "legenda-mapa__nota" }, "Limite superior incluído em cada intervalo."));
       if (aviso) partes.push(el("p", { class: "legenda-mapa__nota legenda-mapa__nota--ensaio" }, aviso));
-      this._conteudo.replaceChildren(...partes);
+      this._classes.replaceChildren(...partes);
+    },
+    // Estado da camada das estações: null (desligada), "a carregar", "pronto" ou "erro".
+    estacoes(estado) {
+      const linha = this._estacoes;
+      linha.hidden = !estado;
+      linha.classList.toggle("legenda-mapa__nota--ensaio", estado === "erro");
+      if (estado === "erro") {
+        linha.replaceChildren("Não foi possível carregar as estações do IPMA (dados/estacoes.json). Desligue e volte a ligar a camada para tentar outra vez.");
+        this._botao.setAttribute("aria-expanded", "true");   // no telemóvel, o erro não fica escondido
+      } else if (estado) {
+        linha.replaceChildren(el("span", { class: "legenda__estacao", "aria-hidden": "true" }),
+          el("span", {}, estado === "a carregar" ? "Estações do IPMA: a carregar…" : "Estação do IPMA"));
+      }
     },
   });
   return new Controlo();
@@ -376,6 +394,152 @@ function criarAnalise(mapa, metaSeries, mostrarDiagrama, movel) {
   };
 }
 
+// --- Camada "Estações do IPMA" -------------------------------------------------
+// Desligada ao abrir; liga-se no controlo de camadas. O ficheiro só se lê
+// quando a camada é ligada pela primeira vez (se faltar, o resto funciona e a
+// legenda diz porquê). Cada estação tem três círculos: um alvo invisível
+// (44 px no telemóvel), o anel visível (focável pelo teclado) e o ponto do
+// meio. Ficam num painel próprio acima das células e do destaque, por isso
+// tocar numa estação não escolhe a célula por baixo.
+const ESTILO_ESTACAO = {
+  anel: { radius: 5.5, color: "#1e2a2f", weight: 2, opacity: 1, fillColor: "#ffffff", fillOpacity: 1 },
+  ponto: { radius: 1.75, stroke: false, fillColor: "#1e2a2f", fillOpacity: 1 },
+};
+const ESTILO_ESCOLHIDA = {
+  anel: { radius: 7.5, color: "#ffffff", weight: 2.5, fillColor: "#1e2a2f" },
+  ponto: { radius: 2.25, fillColor: "#ffffff" },
+};
+const RAIO_ALVO = (movel) => (movel ? 22 : 12);   // px; 22 → alvo de 44 px no telemóvel
+
+function fichaEmDom(ficha, aoVerCelula) {
+  const lista = (linhas) => el("dl", {}, ...linhas.flatMap((l) => [el("dt", {}, l.rotulo), el("dd", {}, l.valor)]));
+  const botao = el("button", { type: "button", class: "estacao__celula" }, "Ver a célula do Atlas");
+  botao.addEventListener("click", aoVerCelula);
+  return el("div", { class: "estacao", role: "group", "aria-label": `${ficha.tipo}: ${ficha.nome}` },
+    el("p", { class: "estacao__tipo" }, ficha.tipo),
+    // .classe: é o que a linha do painel recolhido mostra no telemóvel
+    el("p", { class: "classe estacao__nome" }, ficha.nome,
+       ficha.local ? el("span", { class: "estacao__local" }, `, ${ficha.local}`) : null),
+    lista(ficha.localizacao),
+    el("p", { class: "aviso" }, NOTA_ALTITUDE),
+    el("h3", { class: "estacao__titulo" }, "Atlas face ao IPMA"),
+    lista(ficha.comparacao),
+    el("p", { class: "aviso" }, NOTA_COMPARACAO),
+    ...ficha.avisos.map((a) => el("p", { class: a.destaque ? "aviso aviso--ensaio" : "aviso" }, a.texto)),
+    botao);
+}
+
+// Devolve { grupo (para o controlo de camadas), desmarcar() }.
+// No computador a ficha abre num popup (a célula escolhida e a análise ficam
+// como estavam); no telemóvel vai para o separador Ponto, como um toque numa
+// célula — um popup taparia o mapa, que ali é o ecrã inteiro.
+function criarEstacoes(L, mapa, { metadados, movel, legenda, verCelula, mostrarNoPonto, aoDesligar }) {
+  const painel = mapa.createPane("estacoes");
+  painel.style.zIndex = 460;            // acima de "cliques" (420) e "destaque" (450), abaixo dos popups
+  painel.style.pointerEvents = "none";  // fora dos círculos, o toque passa para as células
+  const grupo = L.layerGroup();
+  const alvos = [];
+  let estado = "por carregar";          // "a carregar" | "pronto" | "erro"
+  let escolhida = null;                 // { anel, ponto } da estação escolhida
+  let focoAoFechar = null;              // anel a refocar quando o popup aberto pelo teclado fecha
+  const popup = L.popup({ className: "popup-estacao", maxWidth: 340, minWidth: 260, offset: [0, -4],
+                          autoPanPadding: [60, 16] });   // 60: fora dos controlos dos cantos
+
+  function marcar(est) {
+    if (escolhida) for (const k of ["anel", "ponto"]) escolhida[k].setStyle(ESTILO_ESTACAO[k]);
+    escolhida = est;
+    if (est) for (const k of ["anel", "ponto"]) { est[k].setStyle(ESTILO_ESCOLHIDA[k]); est[k].bringToFront(); }
+  }
+
+  function abrir(feature, est, viaTeclado) {
+    const [lon, lat] = feature.geometry.coordinates;
+    const ficha = fichaEstacao(feature.properties, metadados);
+    const no = fichaEmDom(ficha, () => { mapa.closePopup(popup); verCelula(ficha.idCelula, lat, lon); });
+    marcar(est);
+    if (movel.ativo()) {
+      mapa.closePopup(popup);
+      mostrarNoPonto(no, lat, lon);
+      return;
+    }
+    no.tabIndex = -1;
+    no.addEventListener("keydown", (ev) => { if (ev.key === "Escape") mapa.closePopup(popup); });
+    popup.options.maxHeight = Math.max(220, mapa.getSize().y - 90);
+    focoAoFechar = viaTeclado ? est.anel : null;
+    popup.setLatLng([lat, lon]).setContent(no).openOn(mapa);
+    if (viaTeclado) no.focus();
+  }
+
+  popup.on("remove", () => {
+    if (!movel.ativo()) marcar(null);
+    const anel = focoAoFechar?.getElement();
+    focoAoFechar = null;
+    // O popup ainda está no DOM (desvanece-se): o foco pode estar lá dentro.
+    const ativo = document.activeElement;
+    if (anel?.isConnected && (!ativo || ativo === document.body || popup.getElement()?.contains(ativo))) anel.focus();
+  });
+
+  function construir(dados) {
+    const estacoes = dados.features.map((f) => {
+      const [lon, lat] = f.geometry.coordinates;
+      return {
+        f,
+        alvo: L.circleMarker([lat, lon], { pane: "estacoes", radius: RAIO_ALVO(movel.ativo()), stroke: false,
+                                           fillColor: "#000", fillOpacity: 0, className: "estacao-alvo" }),
+        anel: L.circleMarker([lat, lon], { pane: "estacoes", className: "estacao-anel", ...ESTILO_ESTACAO.anel }),
+        ponto: L.circleMarker([lat, lon], { pane: "estacoes", interactive: false, ...ESTILO_ESTACAO.ponto }),
+      };
+    });
+    // Os alvos primeiro: os anéis ficam por cima, e um toque mesmo em cima de
+    // uma estação escolhe-a, mesmo que o alvo de uma vizinha o cubra.
+    for (const est of estacoes) {
+      const aoTocar = (ev) => { L.DomEvent.stopPropagation(ev); abrir(est.f, est, false); };
+      est.alvo.on("click", aoTocar).on("add", () => est.alvo.getElement().setAttribute("aria-hidden", "true"));
+      est.anel.on("click", aoTocar).on("add", () => {
+        const e = est.anel.getElement();
+        e.setAttribute("tabindex", "0");
+        e.setAttribute("role", "button");
+        e.setAttribute("aria-label", rotuloEstacao(est.f.properties));
+        L.DomEvent.on(e, "keydown", (ev) => {
+          if (ev.key !== "Enter" && ev.key !== " ") return;
+          L.DomEvent.stop(ev);                 // não chega ao Enter do mapa (célula do centro)
+          abrir(est.f, est, true);
+        });
+      });
+      est.ponto.on("add", () => est.ponto.getElement().setAttribute("aria-hidden", "true"));
+      alvos.push(est.alvo);
+      grupo.addLayer(est.alvo);
+    }
+    for (const est of estacoes) grupo.addLayer(est.anel).addLayer(est.ponto);
+  }
+
+  movel.aoMudar((ativo) => { for (const a of alvos) a.setRadius(RAIO_ALVO(ativo)); });
+
+  grupo.on("add", async () => {
+    if (estado === "pronto" || estado === "a carregar") {
+      legenda.estacoes(estado);
+      return;
+    }
+    estado = "a carregar";
+    legenda.estacoes(estado);
+    try {
+      construir(await carregar(DADOS.estacoes));
+      estado = "pronto";
+    } catch (erro) {
+      console.error(erro);
+      estado = "erro";                 // desligar e voltar a ligar tenta outra vez
+    }
+    if (mapa.hasLayer(grupo)) legenda.estacoes(estado);
+  });
+  grupo.on("remove", () => {
+    legenda.estacoes(null);
+    mapa.closePopup(popup);
+    marcar(null);
+    aoDesligar();
+  });
+
+  return { grupo, desmarcar: () => { if (!mapa.hasLayer(popup)) marcar(null); else mapa.closePopup(popup); } };
+}
+
 function ligarSobre() {
   const dialogo = $("sobre");
   $("abrir-sobre").addEventListener("click", () => dialogo.showModal());
@@ -411,7 +575,7 @@ async function iniciar() {
   // ?base=Escuro (ou Satélite) abre com esse mapa base.
   const pedida = new URLSearchParams(location.search).get("base");
   (bases[pedida] ?? bases[MAPAS_BASE[0].nome]).addTo(mapa);
-  L.control.layers(bases, null, { position: "topright" }).addTo(mapa);
+  const controloCamadas = L.control.layers(bases, null, { position: "topright" }).addTo(mapa);
 
   // A opacidade aplica-se ao "painel" das células como um todo (CSS), não a
   // cada célula: assim as bordas vizinhas não se somam numa rede mais escura.
@@ -443,9 +607,12 @@ async function iniciar() {
   }
   const contorno = L.layerGroup().addTo(mapa);    // contorno da célula escolhida
 
+  let estacoes = null;                   // camada das estações do IPMA (criada mais abaixo)
+
   function escolher(feature, lat, lon) {
     // Telemóvel: o painel do ponto fica à vista antes de mudar (aria-live).
     movel.aoEscolherPonto(lat, lon);
+    estacoes?.desmarcar();
     contorno.clearLayers();
     for (const estilo of DESTAQUE) contorno.addLayer(L.geoJSON(feature, { pane: "destaque", style: estilo, interactive: false }));
     mostrarPonto(feature.properties, lat, lon, metadados);
@@ -457,6 +624,9 @@ async function iniciar() {
   // Teclado: com o foco no mapa, Enter ou Espaço escolhe a célula do centro
   // (marcada pela mira); as setas deslocam o mapa (Leaflet).
   mapa.getContainer().addEventListener("keydown", (ev) => {
+    // Só com o foco no próprio mapa: o Enter num controlo, numa estação ou no
+    // popup (que vivem dentro do mapa) não escolhe a célula do centro.
+    if (ev.target !== mapa.getContainer()) return;
     if (ev.key !== "Enter" && ev.key !== " ") return;
     ev.preventDefault();
     const c = mapa.getCenter();
@@ -464,6 +634,32 @@ async function iniciar() {
     if (f) escolher(f, c.lat, c.lng);
     else mensagem("O centro do mapa não está sobre Portugal. Desloque o mapa com as setas.");
   });
+
+  // Estações do IPMA. "Ver a célula do Atlas" escolhe a célula comparada como
+  // um clique normal: no lugar da estação se ela cair dentro da célula (o
+  // diagrama ajusta-se à altitude da estação), senão no centro da célula.
+  const celulaPorId = new Map(celulas.features.map((f) => [f.properties.id, f]));
+  estacoes = criarEstacoes(L, mapa, {
+    metadados, movel, legenda,
+    verCelula(id, lat, lon) {
+      const f = celulaPorId.get(id);
+      if (!f) return;
+      const c = pontoNaGeometria(lon, lat, f.geometry) ? L.latLng(lat, lon) : L.geoJSON(f).getBounds().getCenter();
+      escolher(f, c.lat, c.lng);
+    },
+    // Telemóvel: a ficha ocupa o separador Ponto; a célula e a análise
+    // anteriores saem, para não se misturarem com a estação.
+    mostrarNoPonto(no, lat, lon) {
+      movel.aoEscolherPonto(lat, lon);
+      contorno.clearLayers();
+      $("analise").hidden = true;
+      $("ponto").replaceChildren(no);
+    },
+    aoDesligar() {
+      if ($("ponto").querySelector(".estacao")) mensagem(indicacao(movel.ativo()));
+    },
+  });
+  controloCamadas.addOverlay(estacoes.grupo, "Estações do IPMA");
 
   async function aplicar(camada) {
     const pedido = ++pedidoAtual;

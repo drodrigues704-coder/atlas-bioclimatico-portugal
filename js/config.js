@@ -8,6 +8,7 @@ export const DADOS = {
   suave: "dados/suave.json",            // grelhas suaves: dados/suave/<camada>.bin
   series: "dados/series.json",          // séries anuais: dados/series/linha_<j>.json
   clima: "dados/clima.json",            // Walter-Lieth: dados/clima/linha_<j>.json
+  estacoes: "dados/estacoes.json",      // estações do IPMA da validação (carrega-se ao ligar a camada)
 };
 
 export const VISTA_INICIAL = { centro: [39.6, -8.0], zoom: 7 };

@@ -1,0 +1,1618 @@
+{
+  "type": "FeatureCollection",
+  "name": "estacoes",
+  "metadados": {
+    "descricao": "Estações do IPMA usadas na validação: comparação das normais da estação com a célula do Atlas. Não inclui valores observados do IPMA.",
+    "fonte_estacoes": "IPMA, Normais Climatológicas 1991–2020 (fichas das estações)",
+    "periodo": "1991–2020",
+    "exportado_em": "2026-10-27",
+    "estacoes": 51,
+    "celula": "a mais próxima da estação dentro da máscara do Atlas (a que o mapa mostra); id_celula = id em celulas.geojson",
+    "vies": "Atlas − IPMA, média anual dos 12 meses, sem correção de altitude (como os mapas)",
+    "temperatura_media": "(TX + TN) / 2",
+    "razao": "Atlas / IPMA; razao_p: precipitação anual; razao_p_verao: junho a agosto",
+    "fonte_precipitacao": "CERRA-Land",
+    "dia_da_precipitacao": "dia_do_fim",
+    "ombrotipo": "ombrotipo_atlas: índice em metadados.json → classes.ombrotipo (o tipo do mapa; códigos do mais seco ao mais húmido); ombrotipo_dif: código do Atlas − código do ombrotipo calculado com a temperatura e a precipitação do IPMA — 0 igual, +1 o Atlas é uma classe mais húmido, −1 uma classe mais seco",
+    "macrobioclima": "macrobioclima_atlas: índice em metadados.json → classes.macrobioclima (o do mapa); macrobioclima_igual: o mesmo que o calculado com a temperatura e a precipitação do IPMA (null se não houver)",
+    "serie_curta": "nota da ficha do IPMA (série curta ou alterada); null nas outras",
+    "series_hibridas": "todas as normais 1991–2020 do IPMA são séries híbridas (falhas preenchidas por modelo, nota das fichas)",
+    "cabo": "Estação num cabo: a célula do modelo, de ~5,5 km, mistura terra e mar e não representa a exposição da ponta do cabo; as diferenças incluem esse efeito.",
+    "alt_celula": "aqui é a altitude média do DEM na célula (a que a app mostra no clique); a coluna alt_celula de resultados/validacao/temperatura_por_estacao.csv (04) é outra coisa: a orografia da CERRA, que aqui se chama alt_modelo",
+    "unidades": {
+      "alt_estacao": "m",
+      "alt_celula": "m (média do DEM na célula)",
+      "alt_modelo": "m (relevo do modelo: a altitude a que a temperatura foi calculada)",
+      "dist_km": "km",
+      "vies_tx": "°C",
+      "vies_tn": "°C",
+      "vies_t": "°C",
+      "razao_p": "adimensional",
+      "razao_p_verao": "adimensional",
+      "ombrotipo_dif": "n.º de classes (+ = Atlas mais húmido)"
+    }
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "numero": "776",
+        "nome": "ALCÁCER DO SAL",
+        "local": null,
+        "alt_estacao": 27,
+        "id_celula": 2124,
+        "alt_celula": 70,
+        "alt_modelo": 61,
+        "dist_km": 2.6,
+        "vies_tx": -1.4,
+        "vies_tn": 1.3,
+        "vies_t": 0.0,
+        "razao_p": 1.09,
+        "razao_p_verao": 1.46,
+        "ombrotipo_atlas": 4,
+        "ombrotipo_dif": 0,
+        "macrobioclima_atlas": 0,
+        "macrobioclima_igual": true,
+        "serie_curta": null,
+        "cabo": false
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -8.4818,
+          38.364
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "numero": "726",
+        "nome": "ALCOBAÇA",
+        "local": "Estação de Fruticultura",
+        "alt_estacao": 36,
+        "id_celula": 3890,
+        "alt_celula": 110,
+        "alt_modelo": 130,
+        "dist_km": 2.4,
+        "vies_tx": -1.7,
+        "vies_tn": 2.4,
+        "vies_t": 0.4,
+        "razao_p": 0.91,
+        "razao_p_verao": 1.12,
+        "ombrotipo_atlas": 5,
+        "ombrotipo_dif": 0,
+        "macrobioclima_atlas": 0,
+        "macrobioclima_igual": true,
+        "serie_curta": null,
+        "cabo": false
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -8.9692,
+          39.5481
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "numero": "783",
+        "nome": "ALVALADE",
+        "local": null,
+        "alt_estacao": 47,
+        "id_celula": 1579,
+        "alt_celula": 64,
+        "alt_modelo": 72,
+        "dist_km": 2.1,
+        "vies_tx": -0.4,
+        "vies_tn": 2.1,
+        "vies_t": 0.9,
+        "razao_p": 1.0,
+        "razao_p_verao": 1.72,
+        "ombrotipo_atlas": 4,
+        "ombrotipo_dif": 0,
+        "macrobioclima_atlas": 0,
+        "macrobioclima_igual": true,
+        "serie_curta": null,
+        "cabo": false
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -8.3944,
+          37.9468
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "numero": "812",
+        "nome": "ALVEGA",
+        "local": null,
+        "alt_estacao": 51,
+        "id_celula": 3564,
+        "alt_celula": 96,
+        "alt_modelo": 131,
+        "dist_km": 1.4,
+        "vies_tx": -2.1,
+        "vies_tn": 3.5,
+        "vies_t": 0.7,
+        "razao_p": 1.0,
+        "razao_p_verao": 1.28,
+        "ombrotipo_atlas": 4,
+        "ombrotipo_dif": 0,
+        "macrobioclima_atlas": 0,
+        "macrobioclima_igual": true,
+        "serie_curta": null,
+        "cabo": false
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -8.027,
+          39.4611
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "numero": "851",
+        "nome": "AMARELEJA",
+        "local": null,
+        "alt_estacao": 183,
+        "id_celula": 1667,
+        "alt_celula": 206,
+        "alt_modelo": 202,
+        "dist_km": 0.8,
+        "vies_tx": -1.9,
+        "vies_tn": 0.8,
+        "vies_t": -0.5,
+        "razao_p": 1.08,
+        "razao_p_verao": 1.43,
+        "ombrotipo_atlas": 4,
+        "ombrotipo_dif": 0,
+        "macrobioclima_atlas": 0,
+        "macrobioclima_igual": true,
+        "serie_curta": "Amareleja — era a estação 850 até 2014",
+        "cabo": false
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -7.2261,
+          38.2006
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "numero": "705",
+        "nome": "ANADIA",
+        "local": null,
+        "alt_estacao": 53,
+        "id_celula": 4990,
+        "alt_celula": 61,
+        "alt_modelo": 94,
+        "dist_km": 1.6,
+        "vies_tx": -1.5,
+        "vies_tn": 1.6,
+        "vies_t": 0.1,
+        "razao_p": 1.02,
+        "razao_p_verao": 1.19,
+        "ombrotipo_atlas": 5,
+        "ombrotipo_dif": 0,
+        "macrobioclima_atlas": 0,
+        "macrobioclima_igual": true,
+        "serie_curta": null,
+        "cabo": false
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -8.4399,
+          40.4388
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "numero": "702",
+        "nome": "AVEIRO",
+        "local": "Universidade",
+        "alt_estacao": 4,
+        "id_celula": 5327,
+        "alt_celula": 10,
+        "alt_modelo": 2,
+        "dist_km": 2.8,
+        "vies_tx": -0.5,
+        "vies_tn": 0.3,
+        "vies_t": -0.1,
+        "razao_p": 0.98,
+        "razao_p_verao": 1.09,
+        "ombrotipo_atlas": 5,
+        "ombrotipo_dif": 0,
+        "macrobioclima_atlas": 0,
+        "macrobioclima_igual": true,
+        "serie_curta": null,
+        "cabo": false
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -8.6598,
+          40.6353
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "numero": "824",
+        "nome": "AVIS/BENAVILA",
+        "local": null,
+        "alt_estacao": 152,
+        "id_celula": 3021,
+        "alt_celula": 158,
+        "alt_modelo": 164,
+        "dist_km": 2.9,
+        "vies_tx": -0.8,
+        "vies_tn": 1.7,
+        "vies_t": 0.4,
+        "razao_p": 1.17,
+        "razao_p_verao": 2.06,
+        "ombrotipo_atlas": 4,
+        "ombrotipo_dif": 0,
+        "macrobioclima_atlas": 0,
+        "macrobioclima_igual": true,
+        "serie_curta": null,
+        "cabo": false
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -7.8775,
+          39.1068
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "numero": "562",
+        "nome": "BEJA",
+        "local": null,
+        "alt_estacao": 246,
+        "id_celula": 1520,
+        "alt_celula": 228,
+        "alt_modelo": 207,
+        "dist_km": 2.6,
+        "vies_tx": -0.6,
+        "vies_tn": 0.8,
+        "vies_t": 0.1,
+        "razao_p": 0.95,
+        "razao_p_verao": 0.99,
+        "ombrotipo_atlas": 4,
+        "ombrotipo_dif": 0,
+        "macrobioclima_atlas": 0,
+        "macrobioclima_igual": true,
+        "serie_curta": null,
+        "cabo": false
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -7.8673,
+          38.0257
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "numero": "622",
+        "nome": "BRAGA",
+        "local": "Merelim",
+        "alt_estacao": 68,
+        "id_celula": 6559,
+        "alt_celula": 63,
+        "alt_modelo": 84,
+        "dist_km": 2.9,
+        "vies_tx": -1.0,
+        "vies_tn": 2.3,
+        "vies_t": 0.7,
+        "razao_p": 0.95,
+        "razao_p_verao": 1.0,
+        "ombrotipo_atlas": 6,
+        "ombrotipo_dif": 0,
+        "macrobioclima_atlas": 0,
+        "macrobioclima_igual": true,
+        "serie_curta": "Braga — dados a partir de 1999",
+        "cabo": false
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -8.4511,
+          41.5758
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "numero": "575",
+        "nome": "BRAGANÇA",
+        "local": null,
+        "alt_estacao": 691,
+        "id_celula": 6517,
+        "alt_celula": 658,
+        "alt_modelo": 680,
+        "dist_km": 1.3,
+        "vies_tx": -0.9,
+        "vies_tn": 1.2,
+        "vies_t": 0.1,
+        "razao_p": 1.0,
+        "razao_p_verao": 1.02,
+        "ombrotipo_atlas": 5,
+        "ombrotipo_dif": 0,
+        "macrobioclima_atlas": 0,
+        "macrobioclima_igual": true,
+        "serie_curta": null,
+        "cabo": false
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.7428,
+          41.8038
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "numero": "531",
+        "nome": "CABO CARVOEIRO",
+        "local": "Farol",
+        "alt_estacao": 32,
+        "id_celula": 3679,
+        "alt_celula": 27,
+        "alt_modelo": 37,
+        "dist_km": 7.1,
+        "vies_tx": 0.8,
+        "vies_tn": -0.5,
+        "vies_t": 0.2,
+        "razao_p": 1.15,
+        "razao_p_verao": 1.13,
+        "ombrotipo_atlas": 4,
+        "ombrotipo_dif": 0,
+        "macrobioclima_atlas": 0,
+        "macrobioclima_igual": true,
+        "serie_curta": null,
+        "cabo": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -9.407,
+          39.3614
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "numero": "750",
+        "nome": "CABO DA ROCA",
+        "local": null,
+        "alt_estacao": 141,
+        "id_celula": 2926,
+        "alt_celula": 202,
+        "alt_modelo": 100,
+        "dist_km": 2.9,
+        "vies_tx": 0.2,
+        "vies_tn": -0.2,
+        "vies_t": 0.0,
+        "razao_p": 1.64,
+        "razao_p_verao": 1.66,
+        "ombrotipo_atlas": 5,
+        "ombrotipo_dif": 1,
+        "macrobioclima_atlas": 0,
+        "macrobioclima_igual": true,
+        "serie_curta": null,
+        "cabo": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -9.4975,
+          38.7816
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "numero": "619",
+        "nome": "CABRIL",
+        "local": "São Lourenço",
+        "alt_estacao": 585,
+        "id_celula": 6634,
+        "alt_celula": 595,
+        "alt_modelo": 682,
+        "dist_km": 2.5,
+        "vies_tx": -2.8,
+        "vies_tn": -1.6,
+        "vies_t": -2.2,
+        "razao_p": 0.79,
+        "razao_p_verao": 0.74,
+        "ombrotipo_atlas": 6,
+        "ombrotipo_dif": 0,
+        "macrobioclima_atlas": 1,
+        "macrobioclima_igual": true,
+        "serie_curta": null,
+        "cabo": false
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -8.027,
+          41.7097
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "numero": "644",
+        "nome": "CARRAZÊDA DE ANSIÃES",
+        "local": null,
+        "alt_estacao": 715,
+        "id_celula": 5826,
+        "alt_celula": 722,
+        "alt_modelo": 658,
+        "dist_km": 2.9,
+        "vies_tx": -0.3,
+        "vies_tn": 2.6,
+        "vies_t": 1.1,
+        "razao_p": 1.03,
+        "razao_p_verao": 1.14,
+        "ombrotipo_atlas": 5,
+        "ombrotipo_dif": 0,
+        "macrobioclima_atlas": 0,
+        "macrobioclima_igual": true,
+        "serie_curta": null,
+        "cabo": false
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -7.2993,
+          41.243
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "numero": "570",
+        "nome": "CASTELO BRANCO",
+        "local": null,
+        "alt_estacao": 386,
+        "id_celula": 3982,
+        "alt_celula": 352,
+        "alt_modelo": 346,
+        "dist_km": 1.9,
+        "vies_tx": -0.5,
+        "vies_tn": 1.0,
+        "vies_t": 0.3,
+        "razao_p": 1.0,
+        "razao_p_verao": 1.15,
+        "ombrotipo_atlas": 5,
+        "ombrotipo_dif": 0,
+        "macrobioclima_atlas": 0,
+        "macrobioclima_igual": true,
+        "serie_curta": null,
+        "cabo": false
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -7.4787,
+          39.8394
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "numero": "616",
+        "nome": "CHAVES",
+        "local": "Aeródromo",
+        "alt_estacao": 353,
+        "id_celula": 6506,
+        "alt_celula": 525,
+        "alt_modelo": 571,
+        "dist_km": 2.3,
+        "vies_tx": -2.3,
+        "vies_tn": 1.2,
+        "vies_t": -0.6,
+        "razao_p": 1.14,
+        "razao_p_verao": 1.26,
+        "ombrotipo_atlas": 5,
+        "ombrotipo_dif": 0,
+        "macrobioclima_atlas": 0,
+        "macrobioclima_igual": true,
+        "serie_curta": null,
+        "cabo": false
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -7.4654,
+          41.7252
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "numero": "707",
+        "nome": "COIMBRA",
+        "local": "Bencanta",
+        "alt_estacao": 27,
+        "id_celula": 4648,
+        "alt_celula": 80,
+        "alt_modelo": 73,
+        "dist_km": 3.5,
+        "vies_tx": -1.2,
+        "vies_tn": 1.3,
+        "vies_t": 0.1,
+        "razao_p": 1.05,
+        "razao_p_verao": 1.23,
+        "ombrotipo_atlas": 5,
+        "ombrotipo_dif": 0,
+        "macrobioclima_atlas": 0,
+        "macrobioclima_igual": true,
+        "serie_curta": null,
+        "cabo": false
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -8.4552,
+          40.2134
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "numero": "744",
+        "nome": "CORUCHE",
+        "local": null,
+        "alt_estacao": 19,
+        "id_celula": 2942,
+        "alt_celula": 30,
+        "alt_modelo": 41,
+        "dist_km": 1.0,
+        "vies_tx": -1.4,
+        "vies_tn": 2.5,
+        "vies_t": 0.5,
+        "razao_p": 1.1,
+        "razao_p_verao": 1.4,
+        "ombrotipo_atlas": 4,
+        "ombrotipo_dif": 0,
+        "macrobioclima_atlas": 0,
+        "macrobioclima_igual": true,
+        "serie_curta": null,
+        "cabo": false
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -8.5131,
+          38.9416
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "numero": "835",
+        "nome": "ELVAS",
+        "local": null,
+        "alt_estacao": 210,
+        "id_celula": 2555,
+        "alt_celula": 235,
+        "alt_modelo": 236,
+        "dist_km": 2.7,
+        "vies_tx": -1.0,
+        "vies_tn": 1.5,
+        "vies_t": 0.3,
+        "razao_p": 0.94,
+        "razao_p_verao": 1.08,
+        "ombrotipo_atlas": 4,
+        "ombrotipo_dif": 0,
+        "macrobioclima_atlas": 0,
+        "macrobioclima_igual": true,
+        "serie_curta": null,
+        "cabo": false
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -7.1409,
+          38.8896
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "numero": "558",
+        "nome": "ÉVORA",
+        "local": null,
+        "alt_estacao": 248,
+        "id_celula": 2270,
+        "alt_celula": 244,
+        "alt_modelo": 247,
+        "dist_km": 1.0,
+        "vies_tx": -1.2,
+        "vies_tn": 1.1,
+        "vies_t": 0.0,
+        "razao_p": 0.96,
+        "razao_p_verao": 1.08,
+        "ombrotipo_atlas": 4,
+        "ombrotipo_dif": 0,
+        "macrobioclima_atlas": 0,
+        "macrobioclima_igual": true,
+        "serie_curta": "Évora — dados a partir de junho de 1995",
+        "cabo": false
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -7.888,
+          38.5365
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "numero": "554",
+        "nome": "FARO",
+        "local": "Aeroporto",
+        "alt_estacao": 5,
+        "id_celula": 154,
+        "alt_celula": 7,
+        "alt_modelo": 3,
+        "dist_km": 2.5,
+        "vies_tx": -0.6,
+        "vies_tn": 0.2,
+        "vies_t": -0.2,
+        "razao_p": 0.99,
+        "razao_p_verao": 1.06,
+        "ombrotipo_atlas": 4,
+        "ombrotipo_dif": 0,
+        "macrobioclima_atlas": 0,
+        "macrobioclima_igual": true,
+        "serie_curta": null,
+        "cabo": false
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -7.9719,
+          37.0166
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "numero": "698",
+        "nome": "FUNDÃO",
+        "local": null,
+        "alt_estacao": 493,
+        "id_celula": 4391,
+        "alt_celula": 458,
+        "alt_modelo": 493,
+        "dist_km": 1.7,
+        "vies_tx": -1.2,
+        "vies_tn": 1.4,
+        "vies_t": 0.1,
+        "razao_p": 1.19,
+        "razao_p_verao": 1.67,
+        "ombrotipo_atlas": 5,
+        "ombrotipo_dif": 0,
+        "macrobioclima_atlas": 0,
+        "macrobioclima_igual": true,
+        "serie_curta": null,
+        "cabo": false
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -7.5036,
+          40.1406
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "numero": "683",
+        "nome": "GUARDA",
+        "local": null,
+        "alt_estacao": 1001,
+        "id_celula": 4872,
+        "alt_celula": 895,
+        "alt_modelo": 850,
+        "dist_km": 1.3,
+        "vies_tx": 1.1,
+        "vies_tn": 0.6,
+        "vies_t": 0.9,
+        "razao_p": 0.93,
+        "razao_p_verao": 1.33,
+        "ombrotipo_atlas": 5,
+        "ombrotipo_dif": -1,
+        "macrobioclima_atlas": 0,
+        "macrobioclima_igual": true,
+        "serie_curta": null,
+        "cabo": false
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -7.2787,
+          40.5286
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "numero": "579",
+        "nome": "LISBOA",
+        "local": "Gago Coutinho",
+        "alt_estacao": 104,
+        "id_celula": 2863,
+        "alt_celula": 92,
+        "alt_modelo": 83,
+        "dist_km": 2.8,
+        "vies_tx": 0.1,
+        "vies_tn": 0.1,
+        "vies_t": 0.1,
+        "razao_p": 1.0,
+        "razao_p_verao": 1.01,
+        "ombrotipo_atlas": 4,
+        "ombrotipo_dif": 0,
+        "macrobioclima_atlas": 0,
+        "macrobioclima_igual": true,
+        "serie_curta": null,
+        "cabo": false
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -9.1275,
+          38.7662
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "numero": "535",
+        "nome": "LISBOA",
+        "local": "Instituto Geofísico",
+        "alt_estacao": 77,
+        "id_celula": 2795,
+        "alt_celula": 69,
+        "alt_modelo": 43,
+        "dist_km": 0.5,
+        "vies_tx": -0.2,
+        "vies_tn": 0.6,
+        "vies_t": 0.2,
+        "razao_p": 0.83,
+        "razao_p_verao": 0.87,
+        "ombrotipo_atlas": 4,
+        "ombrotipo_dif": -1,
+        "macrobioclima_atlas": 0,
+        "macrobioclima_igual": true,
+        "serie_curta": null,
+        "cabo": false
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -9.1497,
+          38.7191
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "numero": "762",
+        "nome": "LISBOA",
+        "local": "Tapada da Ajuda",
+        "alt_estacao": 70,
+        "id_celula": 2794,
+        "alt_celula": 85,
+        "alt_modelo": 65,
+        "dist_km": 2.0,
+        "vies_tx": -0.7,
+        "vies_tn": 0.8,
+        "vies_t": 0.1,
+        "razao_p": 1.09,
+        "razao_p_verao": 1.26,
+        "ombrotipo_atlas": 4,
+        "ombrotipo_dif": 0,
+        "macrobioclima_atlas": 0,
+        "macrobioclima_igual": true,
+        "serie_curta": null,
+        "cabo": false
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -9.1828,
+          38.7097
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "numero": "657",
+        "nome": "LUZIM",
+        "local": null,
+        "alt_estacao": 287,
+        "id_celula": 5880,
+        "alt_celula": 212,
+        "alt_modelo": 274,
+        "dist_km": 2.4,
+        "vies_tx": 0.1,
+        "vies_tn": 1.3,
+        "vies_t": 0.7,
+        "razao_p": 0.86,
+        "razao_p_verao": 1.07,
+        "ombrotipo_atlas": 6,
+        "ombrotipo_dif": 0,
+        "macrobioclima_atlas": 0,
+        "macrobioclima_igual": true,
+        "serie_curta": null,
+        "cabo": false
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -8.249,
+          41.1459
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "numero": "863",
+        "nome": "MÉRTOLA",
+        "local": null,
+        "alt_estacao": 190,
+        "id_celula": 1116,
+        "alt_celula": 199,
+        "alt_modelo": 185,
+        "dist_km": 0.6,
+        "vies_tx": -0.9,
+        "vies_tn": 0.7,
+        "vies_t": -0.1,
+        "razao_p": 1.16,
+        "razao_p_verao": 1.45,
+        "ombrotipo_atlas": 4,
+        "ombrotipo_dif": 0,
+        "macrobioclima_atlas": 0,
+        "macrobioclima_igual": true,
+        "serie_curta": null,
+        "cabo": false
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -7.5515,
+          37.7575
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "numero": "635",
+        "nome": "MIRANDA DO DOURO",
+        "local": null,
+        "alt_estacao": 693,
+        "id_celula": 5979,
+        "alt_celula": 674,
+        "alt_modelo": 702,
+        "dist_km": 1.6,
+        "vies_tx": -1.1,
+        "vies_tn": 1.1,
+        "vies_t": 0.0,
+        "razao_p": 1.03,
+        "razao_p_verao": 1.18,
+        "ombrotipo_atlas": 5,
+        "ombrotipo_dif": 0,
+        "macrobioclima_atlas": 0,
+        "macrobioclima_igual": true,
+        "serie_curta": null,
+        "cabo": false
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.2715,
+          41.4988
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "numero": "632",
+        "nome": "MIRANDELA",
+        "local": null,
+        "alt_estacao": 250,
+        "id_celula": 6169,
+        "alt_celula": 267,
+        "alt_modelo": 307,
+        "dist_km": 2.3,
+        "vies_tx": -0.9,
+        "vies_tn": 2.8,
+        "vies_t": 0.9,
+        "razao_p": 1.35,
+        "razao_p_verao": 1.48,
+        "ombrotipo_atlas": 5,
+        "ombrotipo_dif": 1,
+        "macrobioclima_atlas": 0,
+        "macrobioclima_igual": true,
+        "serie_curta": null,
+        "cabo": false
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -7.1908,
+          41.5148
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "numero": "637",
+        "nome": "MOGADOURO",
+        "local": null,
+        "alt_estacao": 644,
+        "id_celula": 5835,
+        "alt_celula": 646,
+        "alt_modelo": 642,
+        "dist_km": 3.1,
+        "vies_tx": -0.1,
+        "vies_tn": 0.3,
+        "vies_t": 0.1,
+        "razao_p": 1.17,
+        "razao_p_verao": 1.34,
+        "ombrotipo_atlas": 5,
+        "ombrotipo_dif": 0,
+        "macrobioclima_atlas": 0,
+        "macrobioclima_igual": true,
+        "serie_curta": null,
+        "cabo": false
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.7263,
+          41.3351
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "numero": "605",
+        "nome": "MONÇÃO",
+        "local": "Valinha",
+        "alt_estacao": 80,
+        "id_celula": 7174,
+        "alt_celula": 160,
+        "alt_modelo": 224,
+        "dist_km": 1.8,
+        "vies_tx": -2.5,
+        "vies_tn": 0.7,
+        "vies_t": -0.9,
+        "razao_p": 1.19,
+        "razao_p_verao": 1.31,
+        "ombrotipo_atlas": 6,
+        "ombrotipo_dif": 0,
+        "macrobioclima_atlas": 1,
+        "macrobioclima_igual": false,
+        "serie_curta": null,
+        "cabo": false
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -8.381,
+          42.0734
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "numero": "611",
+        "nome": "MONTALEGRE",
+        "local": null,
+        "alt_estacao": 1005,
+        "id_celula": 6706,
+        "alt_celula": 985,
+        "alt_modelo": 990,
+        "dist_km": 3.1,
+        "vies_tx": -1.0,
+        "vies_tn": 0.2,
+        "vies_t": -0.4,
+        "razao_p": 0.73,
+        "razao_p_verao": 0.91,
+        "ombrotipo_atlas": 6,
+        "ombrotipo_dif": 0,
+        "macrobioclima_atlas": 0,
+        "macrobioclima_igual": false,
+        "serie_curta": null,
+        "cabo": false
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -7.7879,
+          41.8228
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "numero": "685",
+        "nome": "NELAS",
+        "local": null,
+        "alt_estacao": 425,
+        "id_celula": 4999,
+        "alt_celula": 408,
+        "alt_modelo": 384,
+        "dist_km": 2.0,
+        "vies_tx": -1.1,
+        "vies_tn": 1.0,
+        "vies_t": -0.1,
+        "razao_p": 1.13,
+        "razao_p_verao": 1.28,
+        "ombrotipo_atlas": 6,
+        "ombrotipo_dif": 1,
+        "macrobioclima_atlas": 0,
+        "macrobioclima_igual": true,
+        "serie_curta": null,
+        "cabo": false
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -7.8555,
+          40.5235
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "numero": "864",
+        "nome": "NEVES CORVO",
+        "local": null,
+        "alt_estacao": 225,
+        "id_celula": 972,
+        "alt_celula": 242,
+        "alt_modelo": 242,
+        "dist_km": 2.3,
+        "vies_tx": -0.6,
+        "vies_tn": 0.9,
+        "vies_t": 0.1,
+        "razao_p": 0.91,
+        "razao_p_verao": 1.33,
+        "ombrotipo_atlas": 4,
+        "ombrotipo_dif": 0,
+        "macrobioclima_atlas": 0,
+        "macrobioclima_igual": true,
+        "serie_curta": null,
+        "cabo": false
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -7.9722,
+          37.5765
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "numero": "767",
+        "nome": "PEGÕES",
+        "local": null,
+        "alt_estacao": 64,
+        "id_celula": 2599,
+        "alt_celula": 84,
+        "alt_modelo": 85,
+        "dist_km": 2.3,
+        "vies_tx": -1.8,
+        "vies_tn": 1.1,
+        "vies_t": -0.3,
+        "razao_p": 1.17,
+        "razao_p_verao": 1.42,
+        "ombrotipo_atlas": 4,
+        "ombrotipo_dif": 0,
+        "macrobioclima_atlas": 0,
+        "macrobioclima_igual": true,
+        "serie_curta": null,
+        "cabo": false
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -8.635,
+          38.6508
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "numero": "568",
+        "nome": "PENHAS DOURADAS",
+        "local": null,
+        "alt_estacao": 1380,
+        "id_celula": 4731,
+        "alt_celula": 1258,
+        "alt_modelo": 1261,
+        "dist_km": 2.3,
+        "vies_tx": -0.4,
+        "vies_tn": -0.1,
+        "vies_t": -0.2,
+        "razao_p": 0.98,
+        "razao_p_verao": 1.27,
+        "ombrotipo_atlas": 7,
+        "ombrotipo_dif": 0,
+        "macrobioclima_atlas": 1,
+        "macrobioclima_igual": false,
+        "serie_curta": null,
+        "cabo": false
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -7.5587,
+          40.4114
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "numero": "615",
+        "nome": "PONTE LIMA",
+        "local": "Escola Agrícola",
+        "alt_estacao": 40,
+        "id_celula": 6830,
+        "alt_celula": 105,
+        "alt_modelo": 136,
+        "dist_km": 2.1,
+        "vies_tx": -1.5,
+        "vies_tn": 2.1,
+        "vies_t": 0.3,
+        "razao_p": 0.84,
+        "razao_p_verao": 0.86,
+        "ombrotipo_atlas": 6,
+        "ombrotipo_dif": 0,
+        "macrobioclima_atlas": 0,
+        "macrobioclima_igual": false,
+        "serie_curta": null,
+        "cabo": false
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -8.5714,
+          41.7638
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "numero": "571",
+        "nome": "PORTALEGRE",
+        "local": null,
+        "alt_estacao": 597,
+        "id_celula": 3232,
+        "alt_celula": 475,
+        "alt_modelo": 466,
+        "dist_km": 3.5,
+        "vies_tx": -0.4,
+        "vies_tn": -0.3,
+        "vies_t": -0.3,
+        "razao_p": 0.96,
+        "razao_p_verao": 1.16,
+        "ombrotipo_atlas": 5,
+        "ombrotipo_dif": 0,
+        "macrobioclima_atlas": 0,
+        "macrobioclima_igual": true,
+        "serie_curta": null,
+        "cabo": false
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -7.4213,
+          39.2942
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "numero": "545",
+        "nome": "PORTO",
+        "local": "Pedras Rubras",
+        "alt_estacao": 68,
+        "id_celula": 6146,
+        "alt_celula": 64,
+        "alt_modelo": 67,
+        "dist_km": 3.0,
+        "vies_tx": -0.7,
+        "vies_tn": 0.1,
+        "vies_t": -0.3,
+        "razao_p": 1.04,
+        "razao_p_verao": 1.13,
+        "ombrotipo_atlas": 6,
+        "ombrotipo_dif": 0,
+        "macrobioclima_atlas": 0,
+        "macrobioclima_igual": true,
+        "serie_curta": null,
+        "cabo": false
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -8.6791,
+          41.2322
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "numero": "533",
+        "nome": "SAGRES",
+        "local": "Quartel da Marinha",
+        "alt_estacao": 23,
+        "id_celula": 478,
+        "alt_celula": 81,
+        "alt_modelo": 29,
+        "dist_km": 6.0,
+        "vies_tx": -0.4,
+        "vies_tn": 0.5,
+        "vies_t": 0.0,
+        "razao_p": 1.06,
+        "razao_p_verao": 1.68,
+        "ombrotipo_atlas": 4,
+        "ombrotipo_dif": 0,
+        "macrobioclima_atlas": 0,
+        "macrobioclima_igual": true,
+        "serie_curta": null,
+        "cabo": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -8.9489,
+          37.0128
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "numero": "734",
+        "nome": "SANTARÉM",
+        "local": "Fonte Boa",
+        "alt_estacao": 72,
+        "id_celula": 3348,
+        "alt_celula": 26,
+        "alt_modelo": 28,
+        "dist_km": 2.4,
+        "vies_tx": -1.1,
+        "vies_tn": 0.6,
+        "vies_t": -0.3,
+        "razao_p": 1.1,
+        "razao_p_verao": 1.21,
+        "ombrotipo_atlas": 4,
+        "ombrotipo_dif": 0,
+        "macrobioclima_atlas": 0,
+        "macrobioclima_igual": true,
+        "serie_curta": null,
+        "cabo": false
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -8.7368,
+          39.2013
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "numero": "721",
+        "nome": "SÃO PEDRO DE MOEL",
+        "local": null,
+        "alt_estacao": 32,
+        "id_celula": 4162,
+        "alt_celula": 76,
+        "alt_modelo": 67,
+        "dist_km": 3.1,
+        "vies_tx": 0.4,
+        "vies_tn": 0.9,
+        "vies_t": 0.6,
+        "razao_p": 1.26,
+        "razao_p_verao": 1.17,
+        "ombrotipo_atlas": 5,
+        "ombrotipo_dif": 1,
+        "macrobioclima_atlas": 0,
+        "macrobioclima_igual": true,
+        "serie_curta": null,
+        "cabo": false
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -9.0306,
+          39.7634
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "numero": "770",
+        "nome": "SETÚBAL",
+        "local": "Estação de Fruticultura",
+        "alt_estacao": 19,
+        "id_celula": 2526,
+        "alt_celula": 97,
+        "alt_modelo": 71,
+        "dist_km": 2.4,
+        "vies_tx": -1.4,
+        "vies_tn": 1.2,
+        "vies_t": -0.1,
+        "razao_p": 0.95,
+        "razao_p_verao": 1.15,
+        "ombrotipo_atlas": 4,
+        "ombrotipo_dif": 0,
+        "macrobioclima_atlas": 0,
+        "macrobioclima_igual": true,
+        "serie_curta": null,
+        "cabo": false
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -8.8908,
+          38.5485
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "numero": "541",
+        "nome": "SINES",
+        "local": null,
+        "alt_estacao": 98,
+        "id_celula": 1708,
+        "alt_celula": 33,
+        "alt_modelo": 16,
+        "dist_km": 3.2,
+        "vies_tx": -0.3,
+        "vies_tn": 0.9,
+        "vies_t": 0.3,
+        "razao_p": 1.01,
+        "razao_p_verao": 1.22,
+        "ombrotipo_atlas": 4,
+        "ombrotipo_dif": 0,
+        "macrobioclima_atlas": 0,
+        "macrobioclima_igual": true,
+        "serie_curta": null,
+        "cabo": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -8.838,
+          37.9545
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "numero": "739",
+        "nome": "TORRES VEDRAS",
+        "local": "Dois Portos",
+        "alt_estacao": 112,
+        "id_celula": 3272,
+        "alt_celula": 116,
+        "alt_modelo": 137,
+        "dist_km": 2.3,
+        "vies_tx": -1.4,
+        "vies_tn": 0.8,
+        "vies_t": -0.3,
+        "razao_p": 1.09,
+        "razao_p_verao": 1.24,
+        "ombrotipo_atlas": 5,
+        "ombrotipo_dif": 1,
+        "macrobioclima_atlas": 0,
+        "macrobioclima_igual": true,
+        "serie_curta": null,
+        "cabo": false
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -9.1794,
+          39.0439
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "numero": "567",
+        "nome": "VILA REAL",
+        "local": null,
+        "alt_estacao": 562,
+        "id_celula": 5956,
+        "alt_celula": 438,
+        "alt_modelo": 453,
+        "dist_km": 2.0,
+        "vies_tx": -0.2,
+        "vies_tn": 0.7,
+        "vies_t": 0.3,
+        "razao_p": 0.95,
+        "razao_p_verao": 0.97,
+        "ombrotipo_atlas": 5,
+        "ombrotipo_dif": 0,
+        "macrobioclima_atlas": 0,
+        "macrobioclima_igual": true,
+        "serie_curta": null,
+        "cabo": false
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -7.7171,
+          41.2742
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "numero": "866",
+        "nome": "VILA REAL DE SANTO ANTONIO",
+        "local": null,
+        "alt_estacao": 5,
+        "id_celula": 300,
+        "alt_celula": 8,
+        "alt_modelo": 4,
+        "dist_km": 2.0,
+        "vies_tx": -0.5,
+        "vies_tn": 0.2,
+        "vies_t": -0.1,
+        "razao_p": 1.05,
+        "razao_p_verao": 1.52,
+        "ombrotipo_atlas": 4,
+        "ombrotipo_dif": 1,
+        "macrobioclima_atlas": 0,
+        "macrobioclima_igual": true,
+        "serie_curta": null,
+        "cabo": false
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -7.4166,
+          37.1871
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "numero": "560",
+        "nome": "VISEU",
+        "local": null,
+        "alt_estacao": 644,
+        "id_celula": 5271,
+        "alt_celula": 559,
+        "alt_modelo": 527,
+        "dist_km": 2.5,
+        "vies_tx": -0.6,
+        "vies_tn": -0.1,
+        "vies_t": -0.3,
+        "razao_p": 0.94,
+        "razao_p_verao": 1.05,
+        "ombrotipo_atlas": 6,
+        "ombrotipo_dif": 0,
+        "macrobioclima_atlas": 0,
+        "macrobioclima_igual": true,
+        "serie_curta": "Viseu — estação desde 1992",
+        "cabo": false
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -7.8959,
+          40.7148
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "numero": "788",
+        "nome": "ZAMBUJEIRA",
+        "local": null,
+        "alt_estacao": 66,
+        "id_celula": 1164,
+        "alt_celula": 67,
+        "alt_modelo": 64,
+        "dist_km": 2.1,
+        "vies_tx": 0.0,
+        "vies_tn": 1.7,
+        "vies_t": 0.9,
+        "razao_p": 0.97,
+        "razao_p_verao": 1.37,
+        "ombrotipo_atlas": 4,
+        "ombrotipo_dif": 0,
+        "macrobioclima_atlas": 0,
+        "macrobioclima_igual": true,
+        "serie_curta": null,
+        "cabo": false
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -8.7429,
+          37.582
+        ]
+      }
+    }
+  ]
+}
