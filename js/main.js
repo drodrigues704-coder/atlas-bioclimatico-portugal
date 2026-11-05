@@ -5,6 +5,7 @@ import { escreverEstado, lerEstado } from "./estado.js";
 import { celulaEm, pontoNaGeometria } from "./geometria.js";
 import { fichaEstacao, NOTA_ALTITUDE, NOTA_COMPARACAO, NOTA_COMPARACAO_PUBLICA, rotuloEstacao } from "./estacoes.js";
 import { PUBLICO } from "./versao.js";
+import { pedirRelatorio } from "./relatorio.js";
 import { carregarCelula, descricaoGrafico, desenharGrafico, mapaDifereDaMedia, numero, ROTULO_REFERENCIA, resumo } from "./serie.js";
 import { ajustarAltitude, altitudeEm, desenharWalterLieth, grelhaDeAltitude, resumoClima, tabelaMensal } from "./walter.js";
 import { codigosPresentes, corSobreClaro, criarSimbologia, formatarCoordenadas, formatarNumero } from "./simbologia.js";
@@ -335,6 +336,37 @@ function criarDiagrama(metaClima) {
 // --- Painel esquerdo "Análise do ponto" ---------------------------------------
 // `metaSeries` é null se dados/series.json não carregou: o painel abre só
 // com essa mensagem e o resto do Atlas funciona.
+// Botões do relatório em PDF (só na versão completa; quem o gera é scripts/servir_app.py).
+function ligarRelatorio(pontoAtual) {
+  const botoes = [...document.querySelectorAll(".botao-relatorio")];
+  const estado = $("relatorio-estado");
+  if (!estado) return;
+  const NOMES = { freguesia: "da freguesia", concelho: "do concelho", distrito: "do distrito" };
+  for (const botao of botoes) {
+    botao.addEventListener("click", async () => {
+      const ponto = pontoAtual();
+      if (!ponto) return;
+      const nivel = botao.dataset.nivel;
+      botoes.forEach((b) => { b.disabled = true; });
+      estado.textContent = `A gerar o relatório ${NOMES[nivel]}… pode levar um minuto.`;
+      try {
+        const { pdf, nome, area } = await pedirRelatorio(nivel, ponto.lat, ponto.lon);
+        const url = URL.createObjectURL(pdf);
+        const ligacao = el("a", { href: url, download: nome });
+        document.body.append(ligacao);
+        ligacao.click();
+        ligacao.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 60000);
+        estado.textContent = `Descarregado: ${area || nome}. Também fica em resultados/relatorios/${nome}.`;
+      } catch (erro) {
+        estado.textContent = erro.message;
+      } finally {
+        botoes.forEach((b) => { b.disabled = false; });
+      }
+    });
+  }
+}
+
 function criarAnalise(mapa, metaSeries, mostrarDiagrama, movel) {
   const painel = $("analise");
   const tela = $("grafico-serie");
@@ -408,7 +440,11 @@ function criarAnalise(mapa, metaSeries, mostrarDiagrama, movel) {
     $("mapa").focus();                                   // o foco não se perde com o painel
   });
 
+  let ponto = null;             // o último ponto escolhido: o relatório é da área onde fica
+  ligarRelatorio(() => ponto);
+
   return async function abrir(props, lat, lon) {
+    ponto = { lat, lon };
     const este = ++pedido;
     const estava = !painel.hidden;
     painel.hidden = false;
