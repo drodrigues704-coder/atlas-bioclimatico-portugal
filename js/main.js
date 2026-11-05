@@ -340,7 +340,7 @@ function criarDiagrama(metaClima) {
 function ligarRelatorio(pontoAtual) {
   const botoes = [...document.querySelectorAll(".botao-relatorio")];
   const estado = $("relatorio-estado");
-  if (!estado) return;
+  if (!estado || botoes.every((b) => b.disabled)) return;     // desativados no index.html
   const NOMES = { freguesia: "da freguesia", concelho: "do concelho", distrito: "do distrito" };
   for (const botao of botoes) {
     botao.addEventListener("click", async () => {
