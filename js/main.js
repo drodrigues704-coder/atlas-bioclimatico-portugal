@@ -1,6 +1,6 @@
 // Arranque: carrega os dados, desenha o mapa, liga a escolha de camadas, a
 // legenda, o painel do ponto e a janela "Sobre".
-import { CAMADAS, CAMADAS_POR_VIR, camadasPorGrupo, DADOS, MAPAS_BASE, OPACIDADE_CELULAS, SERIES, VISTA_INICIAL } from "./config.js";
+import { CAMADAS, CAMADAS_POR_VIR, camadasPorGrupo, CONTACTO, DADOS, LIMITES_MAPA, MAPAS_BASE, OPACIDADE_CELULAS, SERIES, VISTA_INICIAL } from "./config.js";
 import { escreverEstado, lerEstado } from "./estado.js";
 import { celulaEm, pontoNaGeometria } from "./geometria.js";
 import { fichaEstacao, NOTA_ALTITUDE, NOTA_COMPARACAO, NOTA_COMPARACAO_PUBLICA, rotuloEstacao } from "./estacoes.js";
@@ -217,7 +217,8 @@ function mostrarPonto(props, lat, lon, metadados) {
       el("dt", {}, "Coordenadas"), el("dd", {}, formatarCoordenadas(lat, lon))),
     props.vizinha ? el("p", { class: "aviso" },
       "Célula costeira: o modelo vê aqui sobretudo mar, por isso mostra-se o valor da célula de terra mais próxima.") : null,
-    PUBLICO ? el("p", { class: "aviso" }, "Os índices, as séries anuais e o diagrama ombrotérmico deste lugar fazem parte da análise completa, que não está neste site.") : null,
+    PUBLICO ? el("p", { class: "aviso" }, "Os índices, as séries anuais e o diagrama ombrotérmico deste lugar fazem parte da análise completa, que não está neste site. Para a pedir: ",
+      el("a", { href: `mailto:${CONTACTO}` }, CONTACTO), ".") : null,
     comClassificacao
       ? (avisoEnsaio(metadados) ? el("p", { class: "aviso aviso--ensaio" }, `Classificação com ${avisoEnsaio(metadados).toLowerCase()}`) : null)
       : el("p", { class: "aviso" }, "Termotipo e ombrotipo aparecem quando a normal de precipitação estiver calculada."),
@@ -629,7 +630,7 @@ async function iniciar() {
   if (!L) throw new Error("a biblioteca de mapas (Leaflet) não carregou — verifique a ligação à internet");
   mensagem("A carregar os dados…");
 
-  const mapa = L.map("mapa", { zoomControl: true, minZoom: 6, maxZoom: 12, keyboard: true })
+  const mapa = L.map("mapa", { zoomControl: true, minZoom: 6, maxZoom: 12, keyboard: true, maxBounds: LIMITES_MAPA, maxBoundsViscosity: 1 })
     .setView(VISTA_INICIAL.centro, VISTA_INICIAL.zoom);
   movel.usarMapa(mapa);
   const bases = Object.fromEntries(MAPAS_BASE.map((b) =>
@@ -785,6 +786,7 @@ async function iniciar() {
   await aplicar(inicial);
   // Sem animação: o fim dela contaria como o utilizador a mexer no mapa.
   mapa.fitBounds(camadaGeo.getBounds(), { ...movel.margensMapa(), animate: false });
+  mapa.setMinZoom(Math.min(mapa.getZoom(), 7));      // não se afasta mais do que o país inteiro
   mensagem(indicacao(movel.ativo()));
 
   if (pedido.ponto) {

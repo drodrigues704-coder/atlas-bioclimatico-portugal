@@ -12,6 +12,10 @@ export const DADOS = {
 };
 
 export const VISTA_INICIAL = { centro: [39.6, -8.0], zoom: 7 };
+// O mapa não sai daqui. A margem a sul deixa o Algarve subir acima do painel do telemóvel.
+export const LIMITES_MAPA = [[32.5, -12.5], [44.5, -4]];
+// Contacto para pedir a análise completa (versão pública).
+export const CONTACTO = "drodrigues704@gmail.com";
 
 // Mapas base (Esri, sem chave). O primeiro é o que abre.
 const ESRI = "https://services.arcgisonline.com/ArcGIS/rest/services";

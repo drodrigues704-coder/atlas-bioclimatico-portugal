@@ -11,7 +11,8 @@ a de Köppen-Geiger como complemento.
 - **11 mapas:** classificações (continentalidade, macrobioclima, termotipos,
   ombrotipos, bioclimas e Köppen-Geiger) e intervalos de índices e temperatura.
 - **Ao escolher um lugar:** as classes da célula. Índices, séries anuais e diagrama
-  ombrotérmico fazem parte da análise completa, que não está neste site.
+  ombrotérmico fazem parte da análise completa, que não está neste site. Para a
+  pedir: drodrigues704@gmail.com.
 - **Estações do IPMA:** as 51 estações usadas na validação.
 - **"Sobre o Atlas e definições":** dados, método, definições, limitações e fontes.
 
