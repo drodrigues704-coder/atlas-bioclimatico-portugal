@@ -227,9 +227,11 @@ function mostrarPonto(props, lat, lon, metadados) {
   ].filter(Boolean));     // os avisos só existem quando se aplicam
 }
 
-// Botões "Descarregar" (só na versão completa; desativados no index.html por decisão do autor).
+// Botões "Descarregar": desativados no index.html por decisão do autor; na versão pública ficam à vista
+// mas sem ação (o CSV daria os valores que ela esconde), mesmo que alguém lhes tire o "disabled".
 // `acoes`: { "serie-png": () => …, … }; `pronto()` diz se já há um gráfico para descarregar.
 function ligarDescarregar(acoes, pronto) {
+  if (PUBLICO) return;
   for (const botao of document.querySelectorAll(".botao-descarregar")) {
     const acao = acoes[botao.dataset.descarregar];
     if (!acao) continue;

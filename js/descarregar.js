@@ -1,5 +1,5 @@
 // Descarregar os gráficos da análise do ponto: PNG (a imagem do gráfico) e CSV (os valores).
-// Só na versão completa (a pública não tem os botões: o CSV daria os valores que ela esconde).
+// Só na versão completa (na pública os botões ficam à vista, sem ação: o CSV daria os valores que ela esconde).
 // Botões desativados por decisão do autor (21/11/2026); para os ligar, tirar o "disabled".
 //
 // CSV para o Excel em português: separador ";", vírgula decimal, UTF-8 com BOM e o sinal de
