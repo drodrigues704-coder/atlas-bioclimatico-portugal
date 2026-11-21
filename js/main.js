@@ -160,11 +160,17 @@ function criarControloLegenda(L) {
     },
     mostrar(camada, simb, presentes, aviso = null) {
       const entradas = simb.entradas.filter((e) => presentes.has(e.codigo));
+      const opacidade = camada.opacidade ?? OPACIDADE_CELULAS;
+      const amostra = (e) => {
+        const fundo = corSobreClaro(e.cor, opacidade);
+        return e.traco      // zona tracejada (cartas de referência)
+          ? `background:repeating-linear-gradient(-45deg,${corSobreClaro(e.traco, opacidade)} 0 2px,${fundo} 2px 6px)`
+          : `background:${fundo}`;
+      };
       const partes = [
         el("h3", {}, camada.nome),
         el("ol", { class: "legenda" }, ...entradas.map((e) =>
-          el("li", {}, el("span", { class: "legenda__cor", style: `background:${corSobreClaro(e.cor, OPACIDADE_CELULAS)}` }),
-            el("span", {}, e.nome)))),
+          el("li", {}, el("span", { class: "legenda__cor", style: amostra(e) }), el("span", {}, e.nome)))),
       ];
       if (camada.tipo === "intervalos") partes.push(el("p", { class: "legenda-mapa__nota" }, "Limite superior incluído em cada intervalo."));
       if (aviso) partes.push(el("p", { class: "legenda-mapa__nota legenda-mapa__nota--ensaio" }, aviso));
@@ -792,6 +798,26 @@ async function iniciar() {
     }
   }
   let camadaVetorial = null;             // L.geoJSON da carta de referência em vista
+  // Painel próprio das cartas de referência (opacidade de cada carta) e os padrões das zonas tracejadas.
+  const painelCartas = mapa.createPane("cartas");
+  const desenhoCartas = L.svg({ pane: "cartas" });
+  function tramas(simbologia) {
+    const svg = desenhoCartas._container;
+    const NS = "http://www.w3.org/2000/svg";
+    let defs = svg.querySelector("defs");
+    if (!defs) { defs = document.createElementNS(NS, "defs"); svg.prepend(defs); }
+    defs.replaceChildren(...simbologia.entradas.filter((e) => e.traco).map((e) => {
+      const p = document.createElementNS(NS, "pattern");
+      for (const [k, v] of Object.entries({ id: `trama-${e.codigo}`, width: 7, height: 7, patternUnits: "userSpaceOnUse",
+                                            patternTransform: "rotate(-45)" })) p.setAttribute(k, v);
+      const fundo = document.createElementNS(NS, "rect");
+      for (const [k, v] of Object.entries({ width: 7, height: 7, fill: e.cor })) fundo.setAttribute(k, v);
+      const traco = document.createElementNS(NS, "rect");
+      for (const [k, v] of Object.entries({ width: 2.5, height: 7, fill: e.traco })) traco.setAttribute(k, v);
+      p.append(fundo, traco);
+      return p;
+    }));
+  }
 
   let estacoes = null;                   // camada das estações do IPMA (criada mais abaixo)
 
@@ -882,8 +908,13 @@ async function iniciar() {
     if (carta) {
       // A carta como é (polígonos), no painel das células (a mesma opacidade); as células, invisíveis
       // por cima, continuam a receber o clique.
-      camadaVetorial = L.geoJSON(carta, { pane: "celulas", interactive: false,
-        style: (f) => ({ fillColor: simb.cor(f.properties.grupo), fillOpacity: 1, color: "#ffffff", weight: 0.5, opacity: 0.7 }) }).addTo(mapa);
+      painelCartas.style.opacity = camada.opacidade ?? OPACIDADE_CELULAS;
+      camadaVetorial = L.geoJSON(carta, { pane: "cartas", renderer: desenhoCartas, interactive: false,
+        style: (f) => {
+          const e = simb.entradas[f.properties.classe];
+          return { fillColor: e.traco ? `url(#trama-${e.codigo})` : e.cor, fillOpacity: 1, color: "#5b5039", weight: 0.4, opacity: 0.5 };
+        } }).addTo(mapa);
+      tramas(simb);
       camadaGeo.options.style = () => ({ fillColor: "#000", fillOpacity: 0, stroke: false });
     } else if (valores || pronta) {
       // Mapa suave por baixo; células invisíveis por cima (só para o clique).
@@ -903,7 +934,7 @@ async function iniciar() {
     $("camada-descricao").textContent = descricao(camada, metadados);
     // Legenda com as classes que se veem: as do mapa suave quando existe (a
     // interpolação pode não chegar a uma classe que só uma célula tem).
-    const vistos = carta ? carta.features.map((f) => f.properties.grupo)
+    const vistos = carta ? carta.features.map((f) => f.properties.classe)
       : valores ?? celulas.features.map((f) => f.properties[camada.id]);
     legenda.mostrar(camada, simb, pronta ? new Set(pronta.presentes) : codigosPresentes(simb, vistos),
                     camada.precipitacao ? avisoEnsaio(metadados) : null);
