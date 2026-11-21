@@ -12,6 +12,7 @@ import { ajustarAltitude, altitudeEm, desenharWalterLieth, grelhaDeAltitude, res
 import { codigosPresentes, corSobreClaro, criarSimbologia, formatarCoordenadas, formatarNumero } from "./simbologia.js";
 import { descodificar, imagem, pintar } from "./suave.js";
 import { criarMovel, indicacao } from "./movel.js";
+import { fichaDaZona, simbologiaDaCarta, zonaEm } from "./carta.js";
 
 const $ = (id) => document.getElementById(id);
 if (PUBLICO) document.documentElement.classList.add("publico");
@@ -227,6 +228,25 @@ function mostrarPonto(props, lat, lon, metadados) {
       ? (avisoEnsaio(metadados) ? el("p", { class: "aviso aviso--ensaio" }, `Classificação com ${avisoEnsaio(metadados).toLowerCase()}`) : null)
       : el("p", { class: "aviso" }, "Termotipo e ombrotipo aparecem quando a normal de precipitação estiver calculada."),
   ].filter(Boolean));     // os avisos só existem quando se aplicam
+}
+
+// Carta Ecológica no painel do ponto: a zona, o andar e as espécies que a carta indica.
+// `p`: propriedades do polígono (carta.js, zonaEm) ou null fora da carta.
+function blocoDaZona(p) {
+  const s = el("section", { class: "zona-ecologica", "aria-labelledby": "t-zona-ecologica" },
+    el("h3", { class: "zona-ecologica__titulo", id: "t-zona-ecologica" }, "Carta Ecológica (Albuquerque)"));
+  if (!p) {
+    s.append(el("p", { class: "aviso" }, "Este ponto fica fora da Carta Ecológica (a costa da carta, a 1:1 000 000, é mais grosseira)."));
+    return s;
+  }
+  const f = fichaDaZona(p);
+  const especies = f.especies.length
+    ? f.especies.flatMap(({ comum, botanico }, k) => [k ? ", " : "", `${comum} (`, el("i", {}, botanico), ")"])
+    : ["a carta não indica"];
+  s.append(el("dl", {}, el("dt", {}, "Zona"), el("dd", {}, f.zona), el("dt", {}, "Andar"), el("dd", {}, f.andar),
+                el("dt", {}, "Espécies indicadoras"), el("dd", {}, ...especies)));
+  if (f.observacao) s.append(el("p", { class: "aviso" }, `${f.observacao}.`));
+  return s;
 }
 
 // Versão pública: os botões da análise completa à vista, desativados e sem ação (decisão do autor,
@@ -753,6 +773,26 @@ async function iniciar() {
   }
   const contorno = L.layerGroup().addTo(mapa);    // contorno da célula escolhida
 
+  // Cartas de referência (vetoriais): cada ficheiro lê-se uma vez, ao primeiro uso (mapa ou ponto).
+  const cartas = new Map();
+  const lerCarta = (c) => {
+    if (!cartas.has(c.id)) cartas.set(c.id, carregar(c.dados).catch((erro) => { cartas.delete(c.id); throw erro; }));
+    return cartas.get(c.id);
+  };
+  const CARTA_ECOLOGICA = CAMADAS.find((c) => c.id === "carta_ecologica");
+  let pedidoZona = 0;                    // um clique noutro sítio (ou numa estação) anula o anterior
+  async function mostrarZona(lat, lon) {
+    const este = ++pedidoZona;
+    if (!CARTA_ECOLOGICA) return;
+    try {
+      const carta = await lerCarta(CARTA_ECOLOGICA);
+      if (este === pedidoZona) alvoDoPonto().append(blocoDaZona(zonaEm(lat, lon, carta)));
+    } catch (erro) {
+      console.error(erro);             // sem a carta, o painel fica com o resto
+    }
+  }
+  let camadaVetorial = null;             // L.geoJSON da carta de referência em vista
+
   let estacoes = null;                   // camada das estações do IPMA (criada mais abaixo)
 
   function escolher(feature, lat, lon) {
@@ -764,6 +804,7 @@ async function iniciar() {
     contorno.clearLayers();
     for (const estilo of DESTAQUE) contorno.addLayer(L.geoJSON(feature, { pane: "destaque", style: estilo, interactive: false }));
     mostrarPonto(feature.properties, lat, lon, metadados);
+    mostrarZona(lat, lon);
     if (!PUBLICO) abrirAnalise(feature.properties, lat, lon);
   }
 
@@ -798,6 +839,7 @@ async function iniciar() {
     // Telemóvel: a ficha ocupa o separador Ponto; a célula e a análise
     // anteriores saem, para não se misturarem com a estação.
     mostrarNoPonto(no, lat, lon) {
+      pedidoZona++;                      // a zona de um clique anterior já não entra
       movel.aoEscolherPonto(lat, lon);
       contorno.clearLayers();
       vista.ponto = null;
@@ -827,14 +869,23 @@ async function iniciar() {
 
   async function aplicar(camada) {
     const pedido = ++pedidoAtual;
-    simb = criarSimbologia(camada, metadados);
+    const carta = camada.tipo === "referencia" ? await lerCarta(camada) : null;
     // Versão pública: a imagem já vem feita (scripts/12_construir_publico.mjs).
-    const pronta = PUBLICO ? suave.camadas[camada.id] : null;
-    const valores = pronta ? null : await grelhaSuave(camada.id);
+    const pronta = PUBLICO && !carta ? suave.camadas[camada.id] : null;
+    const valores = pronta || carta ? null : await grelhaSuave(camada.id);
     if (pedido !== pedidoAtual) return;               // entretanto escolheu-se outra camada
+    simb = carta ? simbologiaDaCarta(camada, carta) : criarSimbologia(camada, metadados);
     if (imagemSuave) mapa.removeLayer(imagemSuave);
     imagemSuave = null;
-    if (valores || pronta) {
+    if (camadaVetorial) mapa.removeLayer(camadaVetorial);
+    camadaVetorial = null;
+    if (carta) {
+      // A carta como é (polígonos), no painel das células (a mesma opacidade); as células, invisíveis
+      // por cima, continuam a receber o clique.
+      camadaVetorial = L.geoJSON(carta, { pane: "celulas", interactive: false,
+        style: (f) => ({ fillColor: simb.cor(f.properties.grupo), fillOpacity: 1, color: "#ffffff", weight: 0.5, opacity: 0.7 }) }).addTo(mapa);
+      camadaGeo.options.style = () => ({ fillColor: "#000", fillOpacity: 0, stroke: false });
+    } else if (valores || pronta) {
       // Mapa suave por baixo; células invisíveis por cima (só para o clique).
       const url = pronta ? pronta.imagem : imagem(pintar(valores, simb.cor), suave.largura, suave.altura);
       imagemSuave = L.imageOverlay(url, suave.limites, { pane: "celulas", interactive: false }).addTo(mapa);
@@ -852,7 +903,8 @@ async function iniciar() {
     $("camada-descricao").textContent = descricao(camada, metadados);
     // Legenda com as classes que se veem: as do mapa suave quando existe (a
     // interpolação pode não chegar a uma classe que só uma célula tem).
-    const vistos = valores ?? celulas.features.map((f) => f.properties[camada.id]);
+    const vistos = carta ? carta.features.map((f) => f.properties.grupo)
+      : valores ?? celulas.features.map((f) => f.properties[camada.id]);
     legenda.mostrar(camada, simb, pronta ? new Set(pronta.presentes) : codigosPresentes(simb, vistos),
                     camada.precipitacao ? avisoEnsaio(metadados) : null);
   }

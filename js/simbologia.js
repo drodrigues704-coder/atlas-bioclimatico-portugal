@@ -58,8 +58,9 @@ export function codigosPresentes(simbologia, valores) {
   return presentes;
 }
 
+// "classes" e "referencia": código inteiro → cor, nomes em metadados.classes[camada.id].
 export function criarSimbologia(camada, metadados) {
-  if (camada.tipo === "classes") {
+  if (camada.tipo !== "intervalos") {
     const nomes = metadados.classes[camada.id];
     return {
       cor: (v) => (v === null || v === undefined ? null : camada.cores[v] ?? null),

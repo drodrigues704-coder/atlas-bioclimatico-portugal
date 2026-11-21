@@ -15,6 +15,10 @@ autor. Para os reutilizar, é preciso autorização.
 - Altitude: ASTER GDEM v3 (NASA/METI/AIST/Japan Spacesystems e U.S./Japan ASTER Science Team, 2019;
   doi:10.5067/ASTER/ASTGTM.003), reamostrado a 25 m.
 - Validação: normais climatológicas 1991–2020 do IPMA.
+- Carta Ecológica (camada de referência, mostrada como é): J. de Pina Manique e
+  Albuquerque, Carta Ecológica (fito-edafo-climática), 1:1 000 000, Atlas do Ambiente
+  (1982); fonte: Atlas do Ambiente Digital – Instituto do Ambiente. Não é obra do autor
+  e não está abrangida pela reserva de direitos acima.
 
 ## Versões anteriores
 

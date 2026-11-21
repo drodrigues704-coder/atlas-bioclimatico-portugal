@@ -169,15 +169,30 @@ const TODAS_AS_CAMADAS = [
     // paleta categórica validada para daltonismo (21/11/2026).
     cores: ["#2a78d6", "#1baf7a", "#008300", "#eda100", "#e34948", "#6250d6", "#e87ba4"],
   },
+  // --- Cartas de referência (tipo "referencia"): vetoriais, mostram-se como são, sem passar pelas
+  // células; os nomes da legenda vêm do próprio ficheiro (scripts/18_carta_ecologica.py).
+  {
+    id: "carta_ecologica",
+    nome: "Carta Ecológica (Albuquerque)",
+    tipo: "referencia",
+    dados: "dados/carta_ecologica.geojson",
+    // Nas duas versões (decisão do autor, 21/11/2026; licença: citar o Atlas do Ambiente Digital).
+    descricao: "Carta Ecológica (fito-edafo-climática) de J. de Pina Manique e Albuquerque, 1:1 000 000 (Atlas do Ambiente, 1982). É uma zonagem clássica, feita a partir da vegetação e das culturas observadas, não do clima de 1991–2020. A cor é a da primeira zona do código ou, nas zonas edafo-climáticas, a do solo. Ao clicar: a zona, o andar e as espécies indicadoras.",
+    // Pela ordem de bioclima.carta_ecologica.GRUPOS: das zonas atlânticas (azuis) às mediterrâneas
+    // (vermelhos), a Ibérica (continental) a violeta; as edafo-climáticas com cores de solo.
+    cores: ["#1f4e79", "#2c7fb8", "#41b6c4", "#7fcdbb", "#8c6bb1", "#a1d99b", "#31a354", "#d9ef8b",
+            "#fdae61", "#f46d43", "#d73027", "#9e9e9e", "#f2dfa7", "#c9a66b", "#6baed6", "#c51b7d"],
+  },
 ];
 
 // A versão pública não tem as camadas só da completa (scripts/12_construir_publico.mjs também as salta).
 export const CAMADAS = TODAS_AS_CAMADAS.filter((c) => !(PUBLICO && c.soCompleta));
 
-// Grupos da lista de mapas: as classificações primeiro, depois os valores contínuos.
+// Grupos da lista de mapas: as classificações primeiro, depois os valores contínuos e as cartas.
 const GRUPOS_CAMADAS = [
   { tipo: "classes", nome: "Classificações" },
   { tipo: "intervalos", nome: "Índices e temperaturas" },
+  { tipo: "referencia", nome: "Cartas de referência" },
 ];
 export const camadasPorGrupo = (camadas) => GRUPOS_CAMADAS
   .map((g) => ({ nome: g.nome, camadas: camadas.filter((c) => c.tipo === g.tipo) }))

@@ -292,7 +292,7 @@ h2 { font-size: var(--t-subtitulo); margin-bottom: 0.5rem; }
 .estacao dd { margin: 0; font-size: var(--t-pequeno); font-variant-numeric: tabular-nums; }
 .estacao .aviso { margin: 0.5rem 0 0; font-size: var(--t-nota); line-height: 1.4; color: var(--tinta-suave); }
 .estacao .aviso--ensaio { color: var(--wl-t); font-weight: 600; font-size: var(--t-nota); }
-.estacao__titulo { font: 600 var(--t-corpo)/1.2 var(--serifa); margin: 0.875rem 0 0.375rem; padding-top: 0.625rem; border-top: 1px solid var(--linha); }
+.estacao__titulo, .zona-ecologica__titulo { font: 600 var(--t-corpo)/1.2 var(--serifa); margin: 0.875rem 0 0.375rem; padding-top: 0.625rem; border-top: 1px solid var(--linha); }
 .estacao__celula {
   margin-top: 0.75rem; padding: 0.375rem 0.75rem;
   font: inherit; font-size: var(--t-pequeno); color: var(--ativo);
