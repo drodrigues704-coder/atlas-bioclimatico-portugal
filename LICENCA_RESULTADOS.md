@@ -19,6 +19,10 @@ autor. Para os reutilizar, é preciso autorização.
   Albuquerque, Carta Ecológica (fito-edafo-climática), 1:1 000 000, Atlas do Ambiente
   (1982); fonte: Atlas do Ambiente Digital – Instituto do Ambiente. Não é obra do autor
   e não está abrangida pela reserva de direitos acima.
+- Outras cartas de referência (mostradas como são, com as legendas oficiais): zonas
+  fitogeográficas, solos, acidez e alcalinidade dos solos, Carta Litológica e capacidade
+  de uso do solo, 1:1 000 000; fonte: Atlas do Ambiente Digital – Instituto do Ambiente.
+  Não são obra do autor.
 
 ## Versões anteriores
 

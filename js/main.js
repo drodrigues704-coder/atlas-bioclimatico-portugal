@@ -12,7 +12,7 @@ import { ajustarAltitude, altitudeEm, desenharWalterLieth, grelhaDeAltitude, res
 import { codigosPresentes, corSobreClaro, criarSimbologia, formatarCoordenadas, formatarNumero } from "./simbologia.js";
 import { descodificar, imagem, pintar } from "./suave.js";
 import { criarMovel, indicacao } from "./movel.js";
-import { fichaDaZona, simbologiaDaCarta, zonaEm } from "./carta.js";
+import { classeEm, fichaDaZona, simbologiaDaCarta, zonaEm } from "./carta.js";
 
 const $ = (id) => document.getElementById(id);
 if (PUBLICO) document.documentElement.classList.add("publico");
@@ -798,6 +798,15 @@ async function iniciar() {
     }
   }
   let camadaVetorial = null;             // L.geoJSON da carta de referência em vista
+  let cartaEmVista = null;               // { camada, carta } da carta de referência em vista
+  // No painel do ponto, a classe da carta de referência em vista (a Carta Ecológica tem o seu bloco).
+  function mostrarReferencia(lat, lon) {
+    if (!cartaEmVista || cartaEmVista.camada === CARTA_ECOLOGICA) return;
+    const { camada, carta } = cartaEmVista;
+    alvoDoPonto().append(el("section", { class: "zona-ecologica", "aria-label": camada.nome },
+      el("h3", { class: "zona-ecologica__titulo" }, camada.nome),
+      el("p", {}, classeEm(lat, lon, carta) ?? "Este ponto fica fora desta carta.")));
+  }
   // Painel próprio das cartas de referência (opacidade de cada carta) e os padrões das zonas tracejadas.
   const painelCartas = mapa.createPane("cartas");
   const desenhoCartas = L.svg({ pane: "cartas" });
@@ -830,6 +839,7 @@ async function iniciar() {
     contorno.clearLayers();
     for (const estilo of DESTAQUE) contorno.addLayer(L.geoJSON(feature, { pane: "destaque", style: estilo, interactive: false }));
     mostrarPonto(feature.properties, lat, lon, metadados);
+    mostrarReferencia(lat, lon);
     mostrarZona(lat, lon);
     if (!PUBLICO) abrirAnalise(feature.properties, lat, lon);
   }
@@ -905,6 +915,7 @@ async function iniciar() {
     imagemSuave = null;
     if (camadaVetorial) mapa.removeLayer(camadaVetorial);
     camadaVetorial = null;
+    cartaEmVista = carta ? { camada, carta } : null;
     if (carta) {
       // A carta como é (polígonos), no painel das células (a mesma opacidade); as células, invisíveis
       // por cima, continuam a receber o clique.

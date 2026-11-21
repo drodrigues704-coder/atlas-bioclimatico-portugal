@@ -182,6 +182,47 @@ const TODAS_AS_CAMADAS = [
     // cores claras da carta (OA, IM) desapareciam no mapa base a 0,6.
     opacidade: 0.85,
   },
+  // Cartas do Atlas do Ambiente (1:1 000 000), com as legendas e as cores oficiais (scripts/19_cartas_referencia.py).
+  {
+    id: "fitogeografia",
+    nome: "Zonas fitogeográficas (1999)",
+    tipo: "referencia",
+    dados: "dados/referencia/fitogeografia.json",
+    descricao: "Zonas fitogeográficas predominantes do Atlas do Ambiente (1:1 000 000, 1999), com a legenda e as cores oficiais. Ao clicar: a zona do ponto.",
+    opacidade: 0.85,
+  },
+  {
+    id: "solos",
+    nome: "Solos (1978)",
+    tipo: "referencia",
+    dados: "dados/referencia/solos.json",
+    descricao: "Carta de solos do Atlas do Ambiente (1:1 000 000, 1978), segundo o esquema da FAO para a Carta dos Solos da Europa, com a legenda e as cores oficiais. Ao clicar: a unidade de solo do ponto.",
+    opacidade: 0.85,
+  },
+  {
+    id: "ph_solos",
+    nome: "pH dos solos (1979)",
+    tipo: "referencia",
+    dados: "dados/referencia/ph_solos.json",
+    descricao: "Acidez e alcalinidade dos solos do Atlas do Ambiente (1:1 000 000, 1979): o pH dominante e, nalgumas manchas, o secundário (entre parênteses). Legenda e cores oficiais. É o pH que o relatório compara com o de cada espécie.",
+    opacidade: 0.85,
+  },
+  {
+    id: "litologia",
+    nome: "Litologia (1982)",
+    tipo: "referencia",
+    dados: "dados/referencia/litologia.json",
+    descricao: "Carta Litológica do Atlas do Ambiente (1:1 000 000, 1982), com a legenda e as cores oficiais. Contornos simplificados a 250 m. Ao clicar: a rocha do ponto.",
+    opacidade: 0.85,
+  },
+  {
+    id: "capacidade_uso",
+    nome: "Capacidade de uso do solo (1982)",
+    tipo: "referencia",
+    dados: "dados/referencia/capacidade_uso.json",
+    descricao: "Capacidade de uso do solo do Atlas do Ambiente (1:1 000 000, 1982), com a legenda e as cores oficiais: a sul do Tejo, classes A a E (A a C agrícolas); a norte, A (agrícola), C (agrícola condicionada) e F (florestal). Contornos simplificados a 250 m; é a carta mais pesada (cerca de 1 MB).",
+    opacidade: 0.85,
+  },
 ];
 
 // A versão pública não tem as camadas só da completa (scripts/12_construir_publico.mjs também as salta).
