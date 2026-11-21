@@ -1,4 +1,4 @@
-// Relatório em PDF da freguesia, do concelho ou do distrito onde fica o ponto.
+// Relatório em PDF do concelho, do distrito, da NUTS III ou da NUTS II onde fica o ponto.
 // Só na versão completa: quem o gera é o servidor local (scripts/servir_app.py,
 // com scripts/13_relatorio_area.py). Um site estático não o consegue fazer.
 

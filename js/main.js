@@ -6,6 +6,7 @@ import { celulaEm, pontoNaGeometria } from "./geometria.js";
 import { fichaEstacao, NOTA_ALTITUDE, NOTA_COMPARACAO, NOTA_COMPARACAO_PUBLICA, rotuloEstacao } from "./estacoes.js";
 import { PUBLICO } from "./versao.js";
 import { pedirRelatorio } from "./relatorio.js";
+import { csvMensal, csvSerie, csvWalter, guardar, nomeDoFicheiro, pngDoGrafico } from "./descarregar.js";
 import { carregarCelula, descricaoGrafico, desenharGrafico, mapaDifereDaMedia, numero, ROTULO_REFERENCIA, resumo } from "./serie.js";
 import { ajustarAltitude, altitudeEm, desenharWalterLieth, grelhaDeAltitude, resumoClima, tabelaMensal } from "./walter.js";
 import { codigosPresentes, corSobreClaro, criarSimbologia, formatarCoordenadas, formatarNumero } from "./simbologia.js";
@@ -226,6 +227,25 @@ function mostrarPonto(props, lat, lon, metadados) {
   ].filter(Boolean));     // os avisos só existem quando se aplicam
 }
 
+// Botões "Descarregar" (só na versão completa; desativados no index.html por decisão do autor).
+// `acoes`: { "serie-png": () => …, … }; `pronto()` diz se já há um gráfico para descarregar.
+function ligarDescarregar(acoes, pronto) {
+  for (const botao of document.querySelectorAll(".botao-descarregar")) {
+    const acao = acoes[botao.dataset.descarregar];
+    if (!acao) continue;
+    botao.addEventListener("click", async () => {
+      if (!pronto()) return;
+      try {
+        await acao();
+      } catch (erro) {
+        console.error(erro);
+      }
+    });
+  }
+}
+
+const corDeFundo = () => getComputedStyle(document.documentElement).getPropertyValue("--folha").trim();
+
 // --- Diagrama de Walter-Lieth (no painel "Análise do ponto") ----------------
 // `metaClima` é null se dados/clima.json não carregou: o diagrama diz porquê
 // e o resto funciona. Devolve mostrar(id) — a célula escolhida.
@@ -235,6 +255,7 @@ function criarDiagrama(metaClima) {
   let grelhaAltitude = null;    // promessa da grelha de altitude (descarrega-se uma vez, ao 1.º uso)
   let grafico = null;
   let pedido = 0;
+  let onde = null;              // { lat, lon } do ponto mostrado (para o nome dos ficheiros)
   const estado = (texto) => { $("walter-estado").textContent = texto; };
 
   function cores() {
@@ -313,9 +334,16 @@ function criarDiagrama(metaClima) {
       "(a CERRA-Land ainda está a ser descarregada).";
   }
   TEMA_ESCURO.addEventListener("change", () => { if (clima) desenhar(); });
+  const nome = (o_que, extensao) => nomeDoFicheiro(o_que, onde.lat, onde.lon, extensao);
+  ligarDescarregar({
+    "walter-png": async () => { if (grafico) guardar(await pngDoGrafico(tela, corDeFundo()), nome("walter", "png")); },
+    "walter-csv": () => guardar(csvWalter(clima), nome("walter", "csv"), "text/csv"),
+    "walter-mensal": () => guardar(csvMensal(clima), nome("mensal", "csv"), "text/csv"),
+  }, () => clima && onde);
 
   return async function mostrar(id, lat, lon) {
     const este = ++pedido;
+    onde = { lat, lon };
     limpar();
     if (!metaClima) {
       estado("O diagrama não está disponível (não foi possível ler dados/clima.json).");
@@ -341,7 +369,7 @@ function ligarRelatorio(pontoAtual) {
   const botoes = [...document.querySelectorAll(".botao-relatorio")];
   const estado = $("relatorio-estado");
   if (!estado || botoes.every((b) => b.disabled)) return;     // desativados no index.html
-  const NOMES = { freguesia: "da freguesia", concelho: "do concelho", distrito: "do distrito" };
+  const NOMES = { concelho: "do concelho", distrito: "do distrito", nuts3: "da NUTS III", nuts2: "da NUTS II" };
   for (const botao of botoes) {
     botao.addEventListener("click", async () => {
       const ponto = pontoAtual();
@@ -351,12 +379,7 @@ function ligarRelatorio(pontoAtual) {
       estado.textContent = `A gerar o relatório ${NOMES[nivel]}… pode levar um minuto.`;
       try {
         const { pdf, nome, area } = await pedirRelatorio(nivel, ponto.lat, ponto.lon);
-        const url = URL.createObjectURL(pdf);
-        const ligacao = el("a", { href: url, download: nome });
-        document.body.append(ligacao);
-        ligacao.click();
-        ligacao.remove();
-        setTimeout(() => URL.revokeObjectURL(url), 60000);
+        guardar(pdf, nome);
         estado.textContent = `Descarregado: ${area || nome}. Também fica em resultados/relatorios/${nome}.`;
       } catch (erro) {
         estado.textContent = erro.message;
@@ -442,6 +465,11 @@ function criarAnalise(mapa, metaSeries, mostrarDiagrama, movel) {
 
   let ponto = null;             // o último ponto escolhido: o relatório é da área onde fica
   ligarRelatorio(() => ponto);
+  const nomeSerie = (extensao) => nomeDoFicheiro(`serie_${variavel.id}`, ponto.lat, ponto.lon, extensao);
+  ligarDescarregar({
+    "serie-png": async () => guardar(await pngDoGrafico(tela, corDeFundo()), nomeSerie("png")),
+    "serie-csv": () => guardar(csvSerie(metaSeries.anos, celula.variaveis[variavel.id], variavel), nomeSerie("csv"), "text/csv"),
+  }, () => celula && ponto && grafico);
 
   return async function abrir(props, lat, lon) {
     ponto = { lat, lon };

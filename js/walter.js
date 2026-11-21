@@ -10,7 +10,7 @@
 // (ajustarAltitude, abaixo); precipitação da célula.
 import { numero } from "./serie.js";
 
-const MESES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+export const MESES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
 const LIMITE_MM = 100;            // a partir daqui a escala comprime-se
 const FATOR_ACIMA = 10;           // 10× mais comprimida acima de 100 mm
 
