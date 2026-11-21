@@ -175,7 +175,7 @@ const TODAS_AS_CAMADAS = [
     id: "carta_ecologica",
     nome: "Carta Ecológica (Albuquerque)",
     tipo: "referencia",
-    dados: "dados/carta_ecologica.geojson",
+    dados: "dados/referencia/carta_ecologica.json",
     // Nas duas versões (decisão do autor, 21/11/2026; licença: citar o Atlas do Ambiente Digital).
     descricao: "Carta Ecológica (fito-edafo-climática) de J. de Pina Manique e Albuquerque, 1:1 000 000 (Atlas do Ambiente, 1982), com as cores da carta impressa. É uma zonagem clássica, feita a partir da vegetação e das culturas observadas, não do clima de 1991–2020. Ao clicar: a zona, o andar e as espécies indicadoras.",
     // As cores e a legenda vêm do ficheiro (as da carta impressa). Mais opaca do que as células: as
@@ -204,7 +204,7 @@ const TODAS_AS_CAMADAS = [
     nome: "pH dos solos (1979)",
     tipo: "referencia",
     dados: "dados/referencia/ph_solos.json",
-    descricao: "Acidez e alcalinidade dos solos do Atlas do Ambiente (1:1 000 000, 1979): o pH dominante e, nalgumas manchas, o secundário (entre parênteses). Legenda e cores oficiais. É o pH que o relatório compara com o de cada espécie.",
+    descricao: "Acidez e alcalinidade dos solos do Atlas do Ambiente (1:1 000 000, 1979): o pH dominante e, nalgumas manchas, o secundário (entre parênteses). Legenda e cores oficiais.",
     opacidade: 0.85,
   },
   {
@@ -220,7 +220,7 @@ const TODAS_AS_CAMADAS = [
     nome: "Capacidade de uso do solo (1982)",
     tipo: "referencia",
     dados: "dados/referencia/capacidade_uso.json",
-    descricao: "Capacidade de uso do solo do Atlas do Ambiente (1:1 000 000, 1982), com a legenda e as cores oficiais: a sul do Tejo, classes A a E (A a C agrícolas); a norte, A (agrícola), C (agrícola condicionada) e F (florestal). Contornos simplificados a 250 m; é a carta mais pesada (cerca de 1 MB).",
+    descricao: "Capacidade de uso do solo do Atlas do Ambiente (1:1 000 000, 1982), com a legenda e as cores oficiais: a sul do Tejo, classes A a E (A a C agrícolas); a norte, A (agrícola), C (agrícola condicionada) e F (florestal). Contornos simplificados a 250 m; é a carta mais pesada (cerca de 1,3 MB a descarregar).",
     opacidade: 0.85,
   },
 ];

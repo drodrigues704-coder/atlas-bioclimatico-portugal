@@ -64,7 +64,12 @@ function colocarWalter() {
   window.Chart?.getChart($("grafico-walter"))?.resize();
 }
 
+// Pedido da zona da Carta Ecológica em curso: qualquer mudança do painel do ponto (outro clique, uma estação,
+// uma mensagem) anula o anterior, para um bloco atrasado não entrar por baixo de outra coisa.
+let pedidoZona = 0;
+
 function mensagem(texto) {
+  pedidoZona++;
   alvoDoPonto().replaceChildren(el("p", { class: "vazio" }, texto));
 }
 
@@ -239,7 +244,7 @@ function mostrarPonto(props, lat, lon, metadados) {
 // Carta Ecológica no painel do ponto: a zona, o andar e as espécies que a carta indica.
 // `p`: propriedades do polígono (carta.js, zonaEm) ou null fora da carta.
 function blocoDaZona(p) {
-  const s = el("section", { class: "zona-ecologica", "aria-labelledby": "t-zona-ecologica" },
+  const s = el("section", { class: "zona-ecologica bloco-carta-ecologica", "aria-labelledby": "t-zona-ecologica" },
     el("h3", { class: "zona-ecologica__titulo", id: "t-zona-ecologica" }, "Carta Ecológica (Albuquerque)"));
   if (!p) {
     s.append(el("p", { class: "aviso" }, "Este ponto fica fora da Carta Ecológica (a costa da carta, a 1:1 000 000, é mais grosseira)."));
@@ -786,7 +791,6 @@ async function iniciar() {
     return cartas.get(c.id);
   };
   const CARTA_ECOLOGICA = CAMADAS.find((c) => c.id === "carta_ecologica");
-  let pedidoZona = 0;                    // um clique noutro sítio (ou numa estação) anula o anterior
   async function mostrarZona(lat, lon) {
     const este = ++pedidoZona;
     if (!CARTA_ECOLOGICA) return;
@@ -799,13 +803,18 @@ async function iniciar() {
   }
   let camadaVetorial = null;             // L.geoJSON da carta de referência em vista
   let cartaEmVista = null;               // { camada, carta } da carta de referência em vista
-  // No painel do ponto, a classe da carta de referência em vista (a Carta Ecológica tem o seu bloco).
+  // No painel do ponto, a classe da carta de referência em vista (a Carta Ecológica tem o seu bloco). Ao mudar
+  // de camada, a linha anterior sai e entra a da nova carta (antes do bloco da Carta Ecológica).
   function mostrarReferencia(lat, lon) {
+    const alvo = alvoDoPonto();
+    alvo.querySelector(".ponto-referencia")?.remove();
     if (!cartaEmVista || cartaEmVista.camada === CARTA_ECOLOGICA) return;
     const { camada, carta } = cartaEmVista;
-    alvoDoPonto().append(el("section", { class: "zona-ecologica", "aria-label": camada.nome },
+    const bloco = el("section", { class: "zona-ecologica ponto-referencia", "aria-label": camada.nome },
       el("h3", { class: "zona-ecologica__titulo" }, camada.nome),
-      el("p", {}, classeEm(lat, lon, carta) ?? "Este ponto fica fora desta carta.")));
+      el("p", {}, classeEm(lat, lon, carta) ?? "Este ponto fica fora desta carta."));
+    const zona = alvo.querySelector(".bloco-carta-ecologica");
+    if (zona) alvo.insertBefore(bloco, zona); else alvo.append(bloco);
   }
   // Painel próprio das cartas de referência (opacidade de cada carta) e os padrões das zonas tracejadas.
   const painelCartas = mapa.createPane("cartas");
@@ -905,10 +914,16 @@ async function iniciar() {
 
   async function aplicar(camada) {
     const pedido = ++pedidoAtual;
-    const carta = camada.tipo === "referencia" ? await lerCarta(camada) : null;
-    // Versão pública: a imagem já vem feita (scripts/12_construir_publico.mjs).
-    const pronta = PUBLICO && !carta ? suave.camadas[camada.id] : null;
-    const valores = pronta || carta ? null : await grelhaSuave(camada.id);
+    let carta = null, pronta = null, valores = null;
+    try {
+      carta = camada.tipo === "referencia" ? await lerCarta(camada) : null;
+      // Versão pública: a imagem já vem feita (scripts/12_construir_publico.mjs).
+      pronta = PUBLICO && !carta ? suave.camadas[camada.id] : null;
+      valores = pronta || carta ? null : await grelhaSuave(camada.id);
+    } catch (erro) {
+      if (pedido !== pedidoAtual) return;             // falhou uma camada que já não está escolhida
+      throw erro;
+    }
     if (pedido !== pedidoAtual) return;               // entretanto escolheu-se outra camada
     simb = carta ? simbologiaDaCarta(camada, carta) : criarSimbologia(camada, metadados);
     if (imagemSuave) mapa.removeLayer(imagemSuave);
@@ -949,18 +964,36 @@ async function iniciar() {
       : valores ?? celulas.features.map((f) => f.properties[camada.id]);
     legenda.mostrar(camada, simb, pronta ? new Set(pronta.presentes) : codigosPresentes(simb, vistos),
                     camada.precipitacao ? avisoEnsaio(metadados) : null);
+    // Com um ponto escolhido, a linha da carta em vista acompanha a camada.
+    if (vista.ponto && alvoDoPonto().querySelector(".classe")) mostrarReferencia(...vista.ponto);
   }
 
   const pedidaCamada = CAMADAS.find((c) => c.id === pedido.camada);
   const inicial = pedidaCamada && disponivel(pedidaCamada, metadados) ? pedidaCamada : CAMADAS[0];
   vista.camada = inicial.id;
+  // Uma falha a carregar um mapa diz-se na descrição da camada (o painel do ponto fica como estava).
+  const falhou = (c, erro) => {
+    console.error(erro);
+    $("camada-atual").textContent = c.nome;
+    $("camada-descricao").textContent = `Não foi possível mostrar este mapa: ${erro.message}. Escolha-o outra vez para tentar de novo.`;
+  };
   const escolherCamada = (c) => {
     vista.camada = c.id;
     guardarVista();
-    return aplicar(c).catch((erro) => mensagem(`Não foi possível mostrar este mapa: ${erro.message}.`));
+    return aplicar(c).catch((erro) => falhou(c, erro));
   };
   desenharEscolha(escolherCamada, inicial, metadados);
-  await aplicar(inicial);
+  try {
+    await aplicar(inicial);
+  } catch (erro) {
+    // A camada pedida no endereço não carregou (por ex. uma carta grande sem rede): abre o primeiro mapa.
+    if (inicial === CAMADAS[0]) throw erro;
+    console.error(erro);
+    vista.camada = CAMADAS[0].id;
+    const radio = document.querySelector(`input[name="camada"][value="${CAMADAS[0].id}"]`);
+    if (radio) radio.checked = true;
+    await aplicar(CAMADAS[0]);
+  }
   // Sem animação: o fim dela contaria como o utilizador a mexer no mapa.
   mapa.fitBounds(camadaGeo.getBounds(), { ...movel.margensMapa(), animate: false });
   mapa.setMinZoom(Math.min(mapa.getZoom(), 7));      // não se afasta mais do que o país inteiro

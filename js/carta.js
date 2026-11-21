@@ -1,11 +1,32 @@
 // Cartas de referência (vetoriais): a classe de um ponto, a simbologia e, na Carta Ecológica (Pina Manique e
 // Albuquerque), o texto do painel. A legenda (nomes e cores oficiais) vem no próprio ficheiro
 // (scripts/18_carta_ecologica.py e scripts/19_cartas_referencia.py).
-import { celulaEm } from "./geometria.js";
+import { pontoNaGeometria } from "./geometria.js";
 import { criarSimbologia } from "./simbologia.js";
 
+// Caixa [oeste, sul, este, norte] de cada polígono, calculada uma vez: o clique só testa os polígonos cuja
+// caixa contém o ponto (a capacidade de uso tem 9 mil).
+const caixas = new WeakMap();
+function caixa(f) {
+  if (!caixas.has(f)) {
+    const c = [Infinity, Infinity, -Infinity, -Infinity];
+    const aneis = f.geometry.type === "Polygon" ? f.geometry.coordinates : f.geometry.coordinates.flat();
+    for (const anel of aneis) for (const [x, y] of anel) {
+      if (x < c[0]) c[0] = x; if (y < c[1]) c[1] = y; if (x > c[2]) c[2] = x; if (y > c[3]) c[3] = y;
+    }
+    caixas.set(f, c);
+  }
+  return caixas.get(f);
+}
+
 // Propriedades do polígono da carta que contém o ponto, ou null (fora da carta).
-export const zonaEm = (lat, lon, carta) => celulaEm(lat, lon, carta.features)?.properties ?? null;
+export function zonaEm(lat, lon, carta) {
+  const f = carta.features.find((g) => {
+    const c = caixa(g);
+    return lon >= c[0] && lon <= c[2] && lat >= c[1] && lat <= c[3] && pontoNaGeometria(lon, lat, g.geometry);
+  });
+  return f?.properties ?? null;
+}
 
 // Cores da carta (no ficheiro, pela classe da legenda). Nas classes tracejadas, `traco` é a cor do traço e a cor
 // é a do fundo.
