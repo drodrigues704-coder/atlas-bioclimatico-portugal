@@ -32,13 +32,6 @@
         <div id="series-escolha" class="series-escolha" role="radiogroup" aria-labelledby="t-series"></div>
         <button type="button" id="botao-significancia" class="botao-alternar" aria-pressed="false">Significância (Mann–Kendall)</button>
         <div class="grafico"><canvas id="grafico-serie" role="img" aria-label="Gráfico da série anual"></canvas></div>
-        <!-- Programados e desativados por decisão do autor (21/11/2026); para ligar, tirar o "disabled" e o "title".
-             Na versão pública ficam à vista, desativados e sem ação (main.js, ligarDescarregar). -->
-        <div class="descarregar" role="group" aria-label="Descarregar o gráfico da série (ainda não disponível)">
-          <span class="descarregar__rotulo" aria-hidden="true">Descarregar</span>
-          <button type="button" class="botao-descarregar" data-descarregar="serie-png" disabled title="Ainda não disponível">PNG</button>
-          <button type="button" class="botao-descarregar" data-descarregar="serie-csv" disabled title="Ainda não disponível">CSV</button>
-        </div>
         <p id="series-estado" class="descricao" aria-live="polite"></p>
         <dl id="series-resumo" class="series-resumo"></dl>
         <details class="notas">
@@ -52,12 +45,6 @@
         <h3 id="t-walter">Diagrama ombrotérmico (Walter-Lieth)</h3>
         <p id="walter-ensaio" class="aviso aviso--ensaio" hidden></p>
         <div class="grafico grafico--walter"><canvas id="grafico-walter" role="img" aria-label="Diagrama de Walter-Lieth"></canvas></div>
-        <div class="descarregar" role="group" aria-label="Descarregar o diagrama (ainda não disponível)">
-          <span class="descarregar__rotulo" aria-hidden="true">Descarregar</span>
-          <button type="button" class="botao-descarregar" data-descarregar="walter-png" disabled title="Ainda não disponível">PNG</button>
-          <button type="button" class="botao-descarregar" data-descarregar="walter-csv" disabled title="Ainda não disponível">CSV</button>
-          <button type="button" class="botao-descarregar" data-descarregar="walter-mensal" disabled title="Ainda não disponível">Valores mensais (CSV)</button>
-        </div>
         <p id="walter-estado" class="descricao" aria-live="polite"></p>
         <dl id="walter-resumo" class="series-resumo"></dl>
         <details class="walter-meses">

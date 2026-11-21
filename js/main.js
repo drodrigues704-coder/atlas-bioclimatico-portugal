@@ -221,14 +221,29 @@ function mostrarPonto(props, lat, lon, metadados) {
       "Célula costeira: o modelo vê aqui sobretudo mar, por isso mostra-se o valor da célula de terra mais próxima.") : null,
     PUBLICO ? el("p", { class: "aviso" }, "Os índices, as séries anuais e o diagrama ombrotérmico deste lugar fazem parte da análise completa, que não está neste site. Para a pedir: ",
       el("a", { href: `mailto:${CONTACTO}` }, CONTACTO), ".") : null,
+    PUBLICO ? botoesDaVersaoCompleta() : null,
     comClassificacao
       ? (avisoEnsaio(metadados) ? el("p", { class: "aviso aviso--ensaio" }, `Classificação com ${avisoEnsaio(metadados).toLowerCase()}`) : null)
       : el("p", { class: "aviso" }, "Termotipo e ombrotipo aparecem quando a normal de precipitação estiver calculada."),
   ].filter(Boolean));     // os avisos só existem quando se aplicam
 }
 
-// Botões "Descarregar": desativados no index.html por decisão do autor; na versão pública ficam à vista
-// mas sem ação (o CSV daria os valores que ela esconde), mesmo que alguém lhes tire o "disabled".
+// Versão pública: os botões da análise completa à vista, desativados e sem ação (decisão do autor,
+// 21/11/2026). Nenhum tem evento ligado: tirar-lhes o "disabled" não faz nada.
+function botoesDaVersaoCompleta() {
+  const grupo = (titulo, classe, nomes) => [
+    el("p", { class: "descarregar__rotulo" }, titulo),
+    el("div", { class: "relatorio__botoes", role: "group", "aria-label": `${titulo} (só na análise completa)` },
+      ...nomes.map((n) => el("button", { type: "button", class: classe, disabled: "", title: "Só na análise completa" }, n))),
+  ];
+  return el("section", { class: "relatorio relatorio--publico" },
+    ...grupo("Relatório em PDF", "botao-relatorio", ["Concelho", "Distrito", "NUTS III", "NUTS II"]),
+    ...grupo("Descarregar a série anual", "botao-descarregar", ["PNG", "CSV"]),
+    ...grupo("Descarregar o diagrama ombrotérmico", "botao-descarregar", ["PNG", "CSV", "Valores mensais (CSV)"]));
+}
+
+// Botões "Descarregar" (versão completa). Na pública não se liga nada (o CSV daria os valores que ela
+// esconde), mesmo que alguém tire o "disabled" aos botões.
 // `acoes`: { "serie-png": () => …, … }; `pronto()` diz se já há um gráfico para descarregar.
 function ligarDescarregar(acoes, pronto) {
   if (PUBLICO) return;
@@ -378,7 +393,8 @@ function ligarRelatorio(pontoAtual) {
       if (!ponto) return;
       const nivel = botao.dataset.nivel;
       botoes.forEach((b) => { b.disabled = true; });
-      estado.textContent = `A gerar o relatório ${NOMES[nivel]}… pode levar um minuto.`;
+      const demora = nivel === "concelho" ? "pode levar um minuto" : "pode levar alguns minutos (áreas grandes)";
+      estado.textContent = `A gerar o relatório ${NOMES[nivel]}… ${demora}.`;
       try {
         const { pdf, nome, area } = await pedirRelatorio(nivel, ponto.lat, ponto.lon);
         guardar(pdf, nome);
