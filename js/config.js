@@ -163,8 +163,8 @@ const TODAS_AS_CAMADAS = [
     nome: "Formação vegetal",
     tipo: "classes",
     precipitacao: true,
-    soCompleta: true,          // só na versão completa (decisão do autor, 21/11/2026)
-    descricao: "Formação vegetal de A Árvore em Portugal (F. Caldeira Cabral e G. Ribeiro Telles) que o clima de 1991–2020 de cada célula indica, por regras afinadas contra os mapas esquemáticos do livro. É uma aproximação: não substitui a observação do local. Pinta-se célula a célula (~5,5 km).",
+    // Nas duas versões (decisão do autor, 21/11/2026).
+    descricao: "Formação vegetal de A Árvore em Portugal (F. Caldeira Cabral e G. Ribeiro Telles) que o clima de 1991–2020 indica, por regras afinadas contra os mapas esquemáticos do livro. É uma aproximação: não substitui a observação do local.",
     // Do mais húmido ao mais seco, a zona alpina no fim (bioclima.formacoes.ORDEM_NO_MAPA);
     // paleta categórica validada para daltonismo (21/11/2026).
     cores: ["#2a78d6", "#1baf7a", "#008300", "#eda100", "#e34948", "#6250d6", "#e87ba4"],
