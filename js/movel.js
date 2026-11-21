@@ -1,5 +1,8 @@
-// Versão de telemóvel (≤ 760 px): mapa em ecrã inteiro e um painel inferior
-// deslizante com três separadores — Mapas, Ponto e Análise.
+// Versão de telemóvel (≤ 760 px, ou deitado com a janela baixa): mapa em ecrã inteiro e um
+// painel com três separadores — Mapas, Ponto e Análise. Ao alto, o painel desliza de baixo
+// (recolhido, meia altura, cheio); deitado (paisagem), fica à direita com a altura toda e a
+// pega só o abre e recolhe (21/11/2026: com ~375 px de altura, uma gaveta em baixo deixava
+// o mapa numa faixa).
 //
 // Não há DOM duplicado: os blocos que já existem (cabeçalho, camadas, créditos,
 // ponto e análise) mudam de sítio para a barra de cima e para o painel quando o
@@ -13,7 +16,8 @@
 
 import { PUBLICO } from "./versao.js";
 
-export const LIMITE_MOVEL = "(max-width: 760px)";     // o mesmo limite do @media de estilo.css
+export const PAISAGEM = "(orientation: landscape) and (max-height: 500px)";   // telemóvel deitado
+export const LIMITE_MOVEL = `(max-width: 760px), ${PAISAGEM}`;               // os mesmos do @media de estilo.css
 export const ESTADOS_GAVETA = ["recolhido", "meio", "cheio"];
 const FRACAO_MEIO = 0.45;          // painel a meia altura: 45 % da janela
 const FRACAO_CHEIO = 0.88;         // quase ecrã inteiro: fica uma faixa do mapa à vista
@@ -65,8 +69,9 @@ export function velocidadeDoArrasto(amostras, janelaMs = JANELA_VELOCIDADE_MS) {
 // horizontal; abaixo disso continua a ser um toque (num separador, na pega).
 export const eArrasto = (dx, dy) => Math.abs(dy) >= LIMIAR_TOQUE_PX && Math.abs(dy) > Math.abs(dx);
 
-// Tocar na pega: recolhido → meio → cheio → recolhido.
-export function estadoSeguinte(estado) {
+// Tocar na pega: recolhido → meio → cheio → recolhido; em paisagem, abre e recolhe.
+export function estadoSeguinte(estado, paisagem = false) {
+  if (paisagem) return estado === "recolhido" ? "cheio" : "recolhido";
   const k = ESTADOS_GAVETA.indexOf(estado);
   return ESTADOS_GAVETA[(k + 1) % ESTADOS_GAVETA.length];
 }
@@ -77,12 +82,25 @@ export function estadoVizinho(estado, sentido) {
   return ESTADOS_GAVETA[Math.min(ESTADOS_GAVETA.length - 1, Math.max(0, k))];
 }
 
+// Estado do painel aberto ao escolher um separador ou um ponto.
+export const estadoAberto = (paisagem) => (paisagem ? "cheio" : "meio");
+
 const ROTULOS_PEGA = {
   recolhido: "Painel recolhido. Abrir a meia altura",
   meio: "Painel a meia altura. Abrir em ecrã inteiro",
   cheio: "Painel em ecrã inteiro. Recolher",
 };
-export const rotuloPega = (estado) => ROTULOS_PEGA[estado];
+export const rotuloPega = (estado, paisagem = false) => (paisagem
+  ? (estado === "recolhido" ? "Painel recolhido. Abrir ao lado do mapa" : "Painel aberto. Recolher")
+  : ROTULOS_PEGA[estado]);
+
+// Parte do mapa à vista (píxeis do mapa): tira-se a barra de cima e o painel — em baixo
+// (`painel` = altura) ou, em paisagem, à direita (`painel` = largura).
+export function areaVisivel(tamanho, { paisagem, barra, painel }) {
+  return paisagem
+    ? { topo: barra, fundo: tamanho.y, esquerda: 0, direita: tamanho.x - painel }
+    : { topo: barra, fundo: tamanho.y - painel, esquerda: 0, direita: tamanho.x };
+}
 
 // Separadores (padrão WAI-ARIA): setas com volta, Home e End, saltando os
 // desativados. Devolve o índice novo, ou null se a tecla não é destas.
@@ -127,6 +145,7 @@ export function criarMovel() {
   const $ = (id) => document.getElementById(id);
   const raiz = document.documentElement;
   const consulta = window.matchMedia(LIMITE_MOVEL);
+  const consultaPaisagem = window.matchMedia(PAISAGEM);
   const reduzirMovimento = window.matchMedia("(prefers-reduced-motion: reduce)");
   const gaveta = $("gaveta");
   const cabecalho = gaveta.querySelector(".gaveta__cabecalho");   // pega + separadores + linha: arrasta-se por aqui
@@ -157,6 +176,7 @@ export function criarMovel() {
   });
 
   let ativo = false;
+  let paisagem = false;
   let estado = "recolhido";
   let alturas = null;
   let mapa = null;
@@ -196,7 +216,7 @@ export function criarMovel() {
     raiz.style.setProperty("--gaveta-altura", `${alturas[novo]}px`);
     largarEstiloEmLinha();
     pega.setAttribute("aria-expanded", String(novo !== "recolhido"));
-    pega.setAttribute("aria-label", rotuloPega(novo));
+    pega.setAttribute("aria-label", rotuloPega(novo, paisagem));
     mapa?.invalidateSize({ pan: false });
   }
 
@@ -213,10 +233,20 @@ export function criarMovel() {
     if (i === ANALISE) redimensionarGraficos();
   }
 
-  // Escolher um separador com o painel recolhido abre-o a meia altura.
+  // Escolher um separador com o painel recolhido abre-o (a meia altura, ou ao lado em paisagem).
   function escolherSeparador(i, opcoes) {
     mostrarSeparador(i, opcoes);
-    if (estado === "recolhido") definirEstado("meio");
+    if (estado === "recolhido") definirEstado(estadoAberto(paisagem));
+  }
+
+  // Deitado ↔ ao alto: em paisagem não há meia altura (fica aberto).
+  function aplicarPaisagem() {
+    paisagem = consultaPaisagem.matches;
+    raiz.classList.toggle("movel--paisagem", ativo && paisagem);
+    if (!ativo) return;
+    medir();
+    definirEstado(paisagem && estado === "meio" ? "cheio" : estado);
+    redimensionarGraficos();
   }
 
   // O separador Análise (e o botão "Ver análise") só com a análise aberta.
@@ -243,14 +273,16 @@ export function criarMovel() {
     if (ativo) {
       for (const b of blocos) b.destino.insertBefore(b.no, b.antes);
       raiz.classList.add("movel");
+      paisagem = consultaPaisagem.matches;
+      raiz.classList.toggle("movel--paisagem", paisagem);
       medir();
       // Com o foco num bloco que foi para o painel, abre-se esse separador.
       const painelDoFoco = paineis.findIndex((p) => p.contains(foco));
       mostrarSeparador(painelDoFoco >= 0 ? painelDoFoco : (analise.hidden ? MAPAS : PONTO));
-      definirEstado(painelDoFoco >= 0 ? "meio" : "recolhido");
+      definirEstado(painelDoFoco >= 0 ? estadoAberto(paisagem) : "recolhido");
     } else {
       blocos.forEach((b, k) => marcas[k].after(b.no));
-      raiz.classList.remove("movel", "a-arrastar-gaveta");
+      raiz.classList.remove("movel", "movel--paisagem", "a-arrastar-gaveta");
       delete raiz.dataset.gaveta;
       raiz.style.removeProperty("--gaveta-altura");
       largarEstiloEmLinha();
@@ -275,7 +307,7 @@ export function criarMovel() {
 
   cabecalho.addEventListener("pointerdown", (ev) => {
     engolirClique = false;
-    if (!ativo || (ev.pointerType === "mouse" && ev.button !== 0)) return;
+    if (!ativo || paisagem || (ev.pointerType === "mouse" && ev.button !== 0)) return;   // em paisagem não se arrasta
     const h = gaveta.getBoundingClientRect().height;     // a altura à vista, mesmo a meio de uma transição
     arrasto = { id: ev.pointerId, x0: ev.clientX, y0: ev.clientY, h0: h, moveu: false, amostras: [{ t: ev.timeStamp, altura: h }] };
   });
@@ -317,13 +349,13 @@ export function criarMovel() {
     ev.preventDefault();
   }, true);
   pega.addEventListener("click", () => {
-    if (ativo) definirEstado(estadoSeguinte(estado));
+    if (ativo) definirEstado(estadoSeguinte(estado, paisagem));
   });
   pega.addEventListener("keydown", (ev) => {
-    const sentido = { ArrowUp: 1, ArrowDown: -1 }[ev.key];
+    const sentido = (paisagem ? { ArrowLeft: 1, ArrowRight: -1 } : { ArrowUp: 1, ArrowDown: -1 })[ev.key];
     if (!sentido || !ativo) return;
     ev.preventDefault();
-    definirEstado(estadoVizinho(estado, sentido));
+    definirEstado(paisagem ? (sentido > 0 ? "cheio" : "recolhido") : estadoVizinho(estado, sentido));
   });
 
   // --- Separadores -------------------------------------------------------------
@@ -352,6 +384,7 @@ export function criarMovel() {
     definirEstado(estado);
   });
   consulta.addEventListener("change", aplicarArranjo);
+  consultaPaisagem.addEventListener("change", aplicarPaisagem);
   aplicarArranjo();
 
   return {
@@ -360,19 +393,19 @@ export function criarMovel() {
     aoMudar(f) { ouvintes.push(f); },
     // Margens do fitBounds inicial: no telemóvel, sem o que a barra e o painel tapam.
     margensMapa() {
-      return ativo
-        ? { paddingTopLeft: [12, barra.offsetHeight + 12], paddingBottomRight: [12, alturas.recolhido + 12] }
-        : { padding: [12, 12] };
+      if (!ativo) return { padding: [12, 12] };
+      const fundo = paisagem ? 12 : alturas.recolhido + 12;      // em paisagem o painel começa recolhido
+      return { paddingTopLeft: [12, barra.offsetHeight + 12], paddingBottomRight: [12, fundo] };
     },
     // Ponto escolhido: o painel abre a meia altura no separador Ponto e o mapa
     // desloca-se se o ponto ficar tapado pela barra ou pelo painel.
     aoEscolherPonto(lat, lon) {
       if (!ativo) return;
       mostrarSeparador(PONTO);
-      definirEstado("meio");
+      definirEstado(estadoAberto(paisagem));
       if (!mapa) return;
-      const tamanho = mapa.getSize();
-      const area = { topo: barra.offsetHeight, fundo: tamanho.y - alturas.meio, esquerda: 0, direita: tamanho.x };
+      const area = areaVisivel(mapa.getSize(), { paisagem, barra: barra.offsetHeight,
+                                                 painel: paisagem ? gaveta.offsetWidth : alturas.meio });
       const [dx, dy] = deslocamentoParaVisivel(mapa.latLngToContainerPoint([lat, lon]), area);
       if (dx || dy) mapa.panBy([dx, dy], { animate: !reduzirMovimento.matches });
     },

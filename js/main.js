@@ -510,7 +510,7 @@ function criarAnalise(mapa, metaSeries, mostrarDiagrama, movel) {
     limpar();
     mostrarDiagrama(props.id, lat, lon);                 // em paralelo com a série
     // No ecrã em coluna o painel fica por baixo do mapa: levá-lo à vista.
-    const levarAVista = () => { if (ECRA_EM_COLUNA.matches) $("t-analise").scrollIntoView({ behavior: "smooth", block: "start" }); };
+    const levarAVista = () => { if (ECRA_EM_COLUNA.matches && !movel.ativo()) $("t-analise").scrollIntoView({ behavior: "smooth", block: "start" }); };
     if (!metaSeries) {
       estado("As séries anuais não estão disponíveis (não foi possível ler dados/series.json).");
       levarAVista();

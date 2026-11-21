@@ -384,10 +384,10 @@ h2 { font-size: var(--t-subtitulo); margin-bottom: 0.5rem; }
    cabem e o mapa ficava com poucos píxeis — passa ao arranjo em coluna.
    O limite repete-se em main.js (ECRA_EM_COLUNA). */
 @media (min-width: 761px) and (max-width: 1180px) {
-  .atlas:has(.analise:not([hidden])) { flex-direction: column; height: auto; }
-  .atlas:has(.analise:not([hidden])) .mapa-moldura { flex: none; height: 62vh; }
-  .atlas:has(.analise:not([hidden])) .analise { width: auto; order: 1; border-right: 0; border-top: 1px solid var(--linha); }
-  .atlas:has(.analise:not([hidden])) .folha { order: 2; width: auto; border-left: 0; border-top: 1px solid var(--linha); }
+  html:not(.movel) .atlas:has(.analise:not([hidden])) { flex-direction: column; height: auto; }
+  html:not(.movel) .atlas:has(.analise:not([hidden])) .mapa-moldura { flex: none; height: 62vh; }
+  html:not(.movel) .atlas:has(.analise:not([hidden])) .analise { width: auto; order: 1; border-right: 0; border-top: 1px solid var(--linha); }
+  html:not(.movel) .atlas:has(.analise:not([hidden])) .folha { order: 2; width: auto; border-left: 0; border-top: 1px solid var(--linha); }
 }
 
 /* Telemóvel sem JavaScript (recurso): o mapa em cima, a folha em baixo. Com
@@ -578,8 +578,46 @@ h2 { font-size: var(--t-subtitulo); margin-bottom: 0.5rem; }
 .movel .walter-meses summary { padding: 0.75rem 0; }
 .movel .walter-meses { overflow-x: auto; }
 
-/* "Sobre" em ecrã inteiro no telemóvel. */
-@media (max-width: 760px) {
+/* ---------------------------------------------------------------------------
+   Telemóvel deitado (paisagem, janela baixa): o painel fica à direita com a
+   altura toda e o mapa à esquerda; a pega, na borda do painel, abre-o e recolhe-o
+   (recolhido, sai para a direita e só a pega fica à vista). A classe
+   .movel--paisagem põe-na o js/movel.js (mesmo limite: PAISAGEM).
+   --------------------------------------------------------------------------- */
+.movel--paisagem { --painel-largura: min(24rem, 46vw); }
+.movel--paisagem .gaveta {
+  top: 0; bottom: 0; left: auto; right: 0;
+  width: calc(var(--painel-largura) + env(safe-area-inset-right)); height: auto;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) 0;
+  border-top: 0; border-left: 1px solid var(--linha); border-radius: 0;
+  box-shadow: -3px 0 16px rgba(0, 0, 0, 0.16);
+}
+.movel--paisagem .gaveta[data-estado="recolhido"] { transform: translateX(100%); box-shadow: none; }
+@media (prefers-reduced-motion: no-preference) {
+  .movel--paisagem .gaveta { transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1); }
+  .movel--paisagem .barra-movel, .movel--paisagem .leaflet-right { transition: right 0.25s cubic-bezier(0.2, 0.8, 0.2, 1); }
+}
+/* A pega sai do painel para a esquerda: fica à vista com o painel recolhido. */
+.movel--paisagem .gaveta__cabecalho { touch-action: auto; }
+.movel--paisagem .gaveta__pega {
+  position: absolute; top: calc(50% - 2.5rem); left: -44px;
+  width: 44px; min-height: 0; height: 5rem;
+  background: var(--folha); border: 1px solid var(--linha); border-right: 0; border-radius: 10px 0 0 10px;
+  box-shadow: -3px 0 8px rgba(0, 0, 0, 0.12); cursor: pointer;
+}
+.movel--paisagem .gaveta__barra { width: 5px; height: 2.75rem; }
+.movel--paisagem .gaveta__linha { display: none; }
+.movel--paisagem .gaveta__separadores [role="tab"] { min-height: 44px; }
+/* O mapa: a barra de cima e os controlos da direita ficam à esquerda do painel aberto;
+   em baixo nada os tapa. Com o painel aberto os controlos continuam à vista. */
+.movel--paisagem:not([data-gaveta="recolhido"]) .barra-movel { right: var(--painel-largura); }
+.movel--paisagem:not([data-gaveta="recolhido"]) .leaflet-right { right: calc(var(--painel-largura) + env(safe-area-inset-right)); }
+.movel--paisagem .leaflet-bottom { bottom: 0; }
+.movel--paisagem[data-gaveta="cheio"] .leaflet-control-container { visibility: visible; }
+.movel--paisagem .legenda-mapa__conteudo { max-height: max(6rem, calc(100dvh - var(--barra-altura) - 6.5rem)); }
+
+/* "Sobre" em ecrã inteiro no telemóvel (ao alto e deitado). */
+@media (max-width: 760px), (orientation: landscape) and (max-height: 500px) {
   .sobre {
     width: 100%; max-width: 100%; height: 100dvh; max-height: 100dvh; margin: 0;
     padding: 0 calc(1rem + env(safe-area-inset-right)) calc(1.5rem + env(safe-area-inset-bottom)) calc(1rem + env(safe-area-inset-left));
