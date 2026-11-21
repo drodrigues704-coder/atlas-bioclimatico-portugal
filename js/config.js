@@ -1,6 +1,7 @@
 // Camadas e simbologia. Os valores e os nomes das classes vêm dos dados
 // exportados pelo pipeline (dados/celulas.geojson, dados/metadados.json);
 // aqui só se decide como se mostram.
+import { PUBLICO } from "./versao.js";
 
 export const DADOS = {
   celulas: "dados/celulas.geojson",
@@ -54,7 +55,7 @@ const RAMPA_TERMICA = ["#2c4f86", "#4f7fb3", "#8fb6d3", "#d7e3c8", "#f1d38a", "#
 
 // tipo "classes": código inteiro → cor; tipo "intervalos": limites superiores
 // (o último é aberto) — inferior exclusivo, superior inclusivo.
-export const CAMADAS = [
+const TODAS_AS_CAMADAS = [
   {
     id: "continentalidade",
     nome: "Continentalidade",
@@ -157,7 +158,21 @@ export const CAMADAS = [
             "#ff00ff", "#c800c8", "#963296", "#966496", "#aaafff", "#5a78dc", "#4b50b4", "#320087",
             "#00ffff", "#37c8ff", "#007d7d", "#00465f", "#b2b2b2", "#666666"],
   },
+  {
+    id: "formacao",
+    nome: "Formação vegetal",
+    tipo: "classes",
+    precipitacao: true,
+    soCompleta: true,          // só na versão completa (decisão do autor, 21/11/2026)
+    descricao: "Formação vegetal de A Árvore em Portugal (F. Caldeira Cabral e G. Ribeiro Telles) que o clima de 1991–2020 de cada célula indica, por regras afinadas contra os mapas esquemáticos do livro. É uma aproximação: não substitui a observação do local. Pinta-se célula a célula (~5,5 km).",
+    // Do mais húmido ao mais seco, a zona alpina no fim (bioclima.formacoes.ORDEM_NO_MAPA);
+    // paleta categórica validada para daltonismo (21/11/2026).
+    cores: ["#2a78d6", "#1baf7a", "#008300", "#eda100", "#e34948", "#6250d6", "#e87ba4"],
+  },
 ];
+
+// A versão pública não tem as camadas só da completa (scripts/12_construir_publico.mjs também as salta).
+export const CAMADAS = TODAS_AS_CAMADAS.filter((c) => !(PUBLICO && c.soCompleta));
 
 // Grupos da lista de mapas: as classificações primeiro, depois os valores contínuos.
 const GRUPOS_CAMADAS = [

@@ -207,6 +207,7 @@ function mostrarPonto(props, lat, lon, metadados) {
         ...classe("Ombrotipo", PUBLICO ? "ombrotipo" : "ombrotipo_h"),
         ...(PUBLICO ? [] : linha("Índice ombrotérmico (Io)", props.Io, "", 2)),
         ...classe("Köppen-Geiger", "koppen"),
+        ...(PUBLICO ? [] : classe("Formação vegetal", "formacao")),
       ] : []),
       ...classe("Continentalidade", "continentalidade"),
       ...(PUBLICO ? [] : [
