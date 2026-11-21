@@ -11,7 +11,9 @@ autor. Para os reutilizar, é preciso autorização.
   normais e classificados. Nem a Comissão Europeia nem o ECMWF são responsáveis pelo
   uso que possa ser feito desta informação. Estes dados de origem continuam
   disponíveis nas condições da própria licença.
-- Limites administrativos: CAOP 2021 © Direção-Geral do Território.
+- Limites administrativos: CAOP 2021 © Direção-Geral do Território (licença CC BY 4.0).
+- Altitude: ASTER GDEM v3 (NASA/METI/AIST/Japan Spacesystems e U.S./Japan ASTER Science Team, 2019;
+  doi:10.5067/ASTER/ASTGTM.003), reamostrado a 25 m.
 - Validação: normais climatológicas 1991–2020 do IPMA.
 
 ## Versões anteriores
