@@ -1,5 +1,5 @@
 // O estado da vista vive no endereço: copiar o link abre a mesma vista (mapa,
-// mapa base, lugar escolhido, zona do mapa e estações). Valores inválidos
+// mapa base, lugar escolhido, zona do mapa, estações e capitais). Valores inválidos
 // ignoram-se: um link estragado abre o Atlas na vista inicial.
 const CASAS = 4;                 // ~10 m: mais do que chega para uma célula de ~5,5 km
 const ZOOM_MAXIMO = 20;
@@ -24,6 +24,7 @@ export function lerEstado(search, { camadas, bases }) {
     ponto: ponto && coordenadasValidas(ponto[0], ponto[1]) ? ponto : null,
     vista: vistaValida ? { centro: [vista[0], vista[1]], zoom: vista[2] } : null,
     estacoes: p.get("estacoes") === "1",
+    capitais: p.get("capitais") === "1",
   };
 }
 
@@ -39,6 +40,7 @@ export function escreverEstado(estado, search, omissoes) {
   definir("ponto", estado.ponto ? estado.ponto.map(arredondar).join(",") : null);
   definir("vista", estado.vista ? [...estado.vista.centro.map(arredondar), estado.vista.zoom].join(",") : null);
   definir("estacoes", estado.estacoes ? "1" : null);
+  definir("capitais", estado.capitais ? "1" : null);
   const texto = p.toString().replace(/%2C/g, ",");
   return texto ? `?${texto}` : "";
 }

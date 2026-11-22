@@ -269,6 +269,12 @@ h2 { font-size: var(--t-subtitulo); margin-bottom: 0.5rem; }
 }
 .botao-estacoes[aria-pressed="true"] { color: var(--ativo); border-color: var(--ativo); }
 .botao-estacoes:focus-visible { outline: 2px solid var(--foco); outline-offset: 2px; }
+/* Nome das capitais de distrito: só o texto, com um halo claro para se ler em qualquer mapa. */
+.leaflet-tooltip.capital-rotulo {
+  background: none; border: 0; box-shadow: none; padding: 0; color: #1e2a2f;
+  font: 600 var(--t-nota)/1 var(--sans); text-shadow: 0 0 2px #fff, 0 0 3px #fff, 0 0 4px #fff;
+}
+.leaflet-tooltip.capital-rotulo::before { display: none; }
 
 /* Estações do IPMA no mapa: o anel é focável pelo teclado. */
 /* Halo claro por fora do contorno azul: o foco vê-se em qualquer mapa base e tema. */

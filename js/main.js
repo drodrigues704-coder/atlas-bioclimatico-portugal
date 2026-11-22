@@ -734,7 +734,7 @@ async function iniciar() {
   // O que o endereço pede e, depois do arranque, a vista atual (ver estado.js).
   const pedido = lerEstado(location.search, { camadas: CAMADAS.map((c) => c.id), bases: MAPAS_BASE.map((b) => b.nome) });
   const OMISSOES = { camada: CAMADAS[0].id, base: MAPAS_BASE[0].nome };
-  const vista = { camada: null, base: pedido.base, ponto: null, vista: null, estacoes: false };
+  const vista = { camada: null, base: pedido.base, ponto: null, vista: null, estacoes: false, capitais: false };
   let arrancou = false;
   const guardarVista = () => {
     if (arrancou) history.replaceState(null, "", location.pathname + escreverEstado(vista, location.search, OMISSOES));
@@ -912,6 +912,34 @@ async function iniciar() {
   new BotaoEstacoes({ position: "topright" }).addTo(mapa);
   estacoes.grupo.on("add remove", () => { vista.estacoes = mapa.hasLayer(estacoes.grupo); guardarVista(); });
 
+  // Capitais de distrito (pedido do autor, 22/11/2026): um ponto e o nome, por cima de tudo, sem receber o
+  // clique (o clique continua a escolher a célula). O ficheiro lê-se ao ligar pela primeira vez.
+  mapa.createPane("capitais").style.zIndex = 470;
+  mapa.getPane("capitais").style.pointerEvents = "none";
+  const capitais = L.layerGroup();
+  let capitaisCarregadas = null;
+  capitais.on("add", () => {
+    capitaisCarregadas ??= carregar(DADOS.capitais).then((dados) => {
+      for (const c of dados.capitais) {
+        L.circleMarker([c.lat, c.lon], { pane: "capitais", radius: 3.5, color: "#ffffff", weight: 1.5, fillColor: "#1e2a2f",
+                                         fillOpacity: 1, interactive: false })
+          .bindTooltip(c.nome, { permanent: true, direction: "right", offset: [4, 0], className: "capital-rotulo", pane: "capitais" })
+          .addTo(capitais);
+      }
+    }).catch((erro) => { console.error(erro); capitaisCarregadas = null; });
+  });
+  const BotaoCapitais = L.Control.extend({
+    onAdd() {
+      const b = el("button", { type: "button", class: "botao-estacoes", "aria-pressed": "false" }, "Capitais de distrito");
+      L.DomEvent.disableClickPropagation(b);
+      b.addEventListener("click", () => { if (mapa.hasLayer(capitais)) mapa.removeLayer(capitais); else mapa.addLayer(capitais); });
+      mapa.on("layeradd layerremove", () => b.setAttribute("aria-pressed", String(mapa.hasLayer(capitais))));
+      return b;
+    },
+  });
+  new BotaoCapitais({ position: "topright" }).addTo(mapa);
+  capitais.on("add remove", () => { vista.capitais = mapa.hasLayer(capitais); guardarVista(); });
+
   async function aplicar(camada) {
     const pedido = ++pedidoAtual;
     let carta = null, pronta = null, valores = null;
@@ -1004,6 +1032,7 @@ async function iniciar() {
     if (f) escolher(f, pedido.ponto[0], pedido.ponto[1]);
   }
   if (pedido.estacoes) mapa.addLayer(estacoes.grupo);
+  if (pedido.capitais) mapa.addLayer(capitais);
   // Por último: escolher um ponto pode deslocar o mapa.
   if (pedido.vista) {
     mapa.setView(pedido.vista.centro, pedido.vista.zoom, { animate: false });
