@@ -259,8 +259,9 @@ function blocoDoProf(f, emCorredor, potencial = null) {
     el("dt", {}, "Outras espécies a privilegiar (Grupo II)"), el("dd", {}, ...lista(f.grupo2))));
   if (potencial) {
     // a classe de cada espécie pela matriz do PROF com o clima de 1991–2020 (≈: pode mudar com pouca diferença de chuva)
-    const partes = ["Boa", "Regular", "Baixa"].filter((k) => potencial[k].length).flatMap((k, i) => [
-      i ? "; " : "", el("strong", {}, `${k}: `), potencial[k].map((e) => `${e.comum}${e.muda ? " ≈" : ""}`).join(", ")]);
+    const rotulos = { Boa: "Boa", Regular: "Regular", Baixa: "Baixa", semAvaliacao: "Sem avaliação na matriz" };
+    const partes = Object.keys(rotulos).filter((k) => potencial[k].length).flatMap((k, i) => [
+      i ? "; " : "", el("strong", {}, `${rotulos[k]}: `), potencial[k].map((e) => `${e.comum}${e.muda ? " ≈" : ""}`).join(", ")]);
     if (partes.length) {
       s.querySelector("dl").append(el("dt", {}, "Potencial climático 1991–2020 (matriz do PROF)"), el("dd", {}, ...partes));
       s.append(el("p", { class: "aviso" }, "Potencial climático: a matriz do PROF aplicada ao clima de 1991–2020 desta célula. "

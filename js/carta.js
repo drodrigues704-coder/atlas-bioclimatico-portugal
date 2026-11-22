@@ -65,17 +65,18 @@ export function fichaDoProf(p, carta) {
 
 // Potencial climático 1991–2020 no ponto (matrizes do PROF do Alentejo e de Lisboa e Vale do Tejo; scripts/
 // 21_prof_potencial.py): as espécies da sub-região por classe, com `muda` quando a classe pode mudar com pouca
-// diferença de chuva. null fora do ALT e do LVT, ou quando a célula é de outro PROF que o ponto (na fronteira).
+// diferença de chuva, e `semAvaliacao` (casas sem cor ou classes fora da matriz). null fora do ALT e do LVT. A célula
+// guarda uma entrada por PROF que toca: usa-se a do PROF do ponto.
 export function potencialNoPonto(ficha, app, idCelula) {
-  const c = app?.celulas?.[String(idCelula)];
-  if (!ficha || !c || c[0] !== ficha.profId) return null;
+  const c = (app?.celulas?.[String(idCelula)] ?? []).find((e) => e[0] === ficha?.profId);
+  if (!ficha || !c) return null;
   const [, codigos, avisos] = c;
   const indice = app.indice[ficha.profId] ?? {};
-  const classes = { Boa: [], Regular: [], Baixa: [] };
+  const classes = { Boa: [], Regular: [], Baixa: [], semAvaliacao: [] };
   for (const e of [...ficha.grupo1, ...ficha.grupo2]) {
     const k = indice[e.botanico];
     if (k === undefined) continue;
-    const lista = classes[app.codigos[codigos[k]]];
+    const lista = classes[app.codigos[codigos[k]]] ?? classes.semAvaliacao;
     if (lista && !lista.some((x) => x.comum === e.comum)) lista.push({ comum: e.comum, botanico: e.botanico, muda: avisos[k] === "1" });
   }
   return classes;
