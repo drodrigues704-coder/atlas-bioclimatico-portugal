@@ -43,6 +43,25 @@ export function classeEm(lat, lon, carta) {
   return p ? carta.legenda[p.classe].nome : null;
 }
 
+// Ficha PROF do ponto (scripts/20_prof.py): `p` são as propriedades do polígono da SRH (zonaEm) ou null fora dos
+// PROF; os nomes das funções e as listas de espécies vêm do ficheiro.
+export function fichaDoProf(p, carta) {
+  if (!p) return null;
+  const s = carta.srh[p.i];
+  const prof = carta.profs[s.prof];
+  const especies = (lista) => lista.map(([comum, botanico, conservacao]) => ({ comum, botanico, conservacao }));
+  const grupo1 = especies(s.grupo1), grupo2 = especies(s.grupo2);
+  return {
+    srh: s.nome,
+    prof: prof.nome,
+    regulamento: `Portaria n.º ${prof.portaria}, art. ${s.artigo}.º`,
+    funcoes: s.funcoes.map((k) => carta.funcoes[k]).join(", "),
+    grupo1,
+    grupo2,
+    conservacao: [...grupo1, ...grupo2].some((e) => e.conservacao),
+  };
+}
+
 // Texto para o painel do ponto (Carta Ecológica).
 export function fichaDaZona(p) {
   return {

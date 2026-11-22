@@ -12,7 +12,7 @@ import { ajustarAltitude, altitudeEm, desenharWalterLieth, grelhaDeAltitude, res
 import { codigosPresentes, corSobreClaro, criarSimbologia, formatarCoordenadas, formatarNumero } from "./simbologia.js";
 import { descodificar, imagem, pintar } from "./suave.js";
 import { criarMovel, indicacao } from "./movel.js";
-import { classeEm, fichaDaZona, simbologiaDaCarta, zonaEm } from "./carta.js";
+import { classeEm, fichaDaZona, fichaDoProf, simbologiaDaCarta, zonaEm } from "./carta.js";
 
 const $ = (id) => document.getElementById(id);
 if (PUBLICO) document.documentElement.classList.add("publico");
@@ -239,6 +239,28 @@ function mostrarPonto(props, lat, lon, metadados) {
       ? (avisoEnsaio(metadados) ? el("p", { class: "aviso aviso--ensaio" }, `Classificação com ${avisoEnsaio(metadados).toLowerCase()}`) : null)
       : el("p", { class: "aviso" }, "Termotipo e ombrotipo aparecem quando a normal de precipitação estiver calculada."),
   ].filter(Boolean));     // os avisos só existem quando se aplicam
+}
+
+// PROF no painel do ponto: a sub-região homogénea, as funções, o corredor ecológico (null: sem o ficheiro) e as
+// espécies a privilegiar. `f`: fichaDoProf (carta.js), null fora dos PROF.
+function blocoDoProf(f, emCorredor) {
+  const s = el("section", { class: "zona-ecologica bloco-prof", "aria-labelledby": "t-prof" },
+    el("h3", { class: "zona-ecologica__titulo", id: "t-prof" }, "Ordenamento florestal (PROF)"));
+  if (!f) {
+    s.append(el("p", { class: "aviso" }, "Este ponto fica fora das sub-regiões homogéneas dos PROF."));
+    return s;
+  }
+  const lista = (especies) => (especies.length ? especies.flatMap(({ comum, botanico, conservacao }, k) =>
+    [k ? ", " : "", `${comum}${conservacao ? "*" : ""}`, ...(botanico ? [" (", el("i", {}, botanico), ")"] : [])]) : ["nenhuma"]);
+  const linhas = [["Sub-região homogénea", `${f.srh}, PROF ${f.prof} (${f.regulamento})`], ["Funções gerais", f.funcoes]];
+  if (emCorredor !== null) linhas.push(["Corredor ecológico", emCorredor ? "sim" : "não"]);
+  s.append(el("dl", {}, ...linhas.flatMap(([t, d]) => [el("dt", {}, t), el("dd", {}, d)]),
+    el("dt", {}, "Espécies a privilegiar (Grupo I)"), el("dd", {}, ...lista(f.grupo1)),
+    el("dt", {}, "Outras espécies a privilegiar (Grupo II)"), el("dd", {}, ...lista(f.grupo2))));
+  s.append(el("p", { class: "aviso" }, "Uma área com espécies do Grupo I só se reconverte para outra do Grupo I; espécies fora "
+    + "dos dois grupos, só com fundamentação técnica e autorização do ICNF."
+    + (f.conservacao ? " * Gestão e conservação prioritária em manchas de regeneração natural." : "")));
+  return s;
 }
 
 // Carta Ecológica no painel do ponto: a zona, o andar e as espécies que a carta indica.
@@ -791,29 +813,37 @@ async function iniciar() {
     return cartas.get(c.id);
   };
   const CARTA_ECOLOGICA = CAMADAS.find((c) => c.id === "carta_ecologica");
+  const PROF_SRH = CAMADAS.find((c) => c.id === "prof_srh");
+  const PROF_CORREDORES = CAMADAS.find((c) => c.id === "prof_corredores");
+  const COM_BLOCO_PROPRIO = [CARTA_ECOLOGICA, PROF_SRH, PROF_CORREDORES].filter(Boolean);
+  // Os blocos próprios do painel do ponto, em qualquer mapa: o PROF (com o corredor ecológico) e a Carta
+  // Ecológica. Sem um dos ficheiros, o painel fica com o resto.
   async function mostrarZona(lat, lon) {
     const este = ++pedidoZona;
-    if (!CARTA_ECOLOGICA) return;
-    try {
-      const carta = await lerCarta(CARTA_ECOLOGICA);
-      if (este === pedidoZona) alvoDoPonto().append(blocoDaZona(zonaEm(lat, lon, carta)));
-    } catch (erro) {
-      console.error(erro);             // sem a carta, o painel fica com o resto
+    const ler = (c) => (c ? lerCarta(c) : Promise.resolve(null));
+    const [srh, corredores, ecologica] = await Promise.allSettled([ler(PROF_SRH), ler(PROF_CORREDORES), ler(CARTA_ECOLOGICA)]);
+    for (const r of [srh, corredores, ecologica]) if (r.status === "rejected") console.error(r.reason);
+    if (este !== pedidoZona) return;
+    const alvo = alvoDoPonto();
+    if (srh.value) {
+      const emCorredor = corredores.value ? zonaEm(lat, lon, corredores.value) !== null : null;
+      alvo.append(blocoDoProf(fichaDoProf(zonaEm(lat, lon, srh.value), srh.value), emCorredor));
     }
+    if (ecologica.value) alvo.append(blocoDaZona(zonaEm(lat, lon, ecologica.value)));
   }
   let camadaVetorial = null;             // L.geoJSON da carta de referência em vista
   let cartaEmVista = null;               // { camada, carta } da carta de referência em vista
-  // No painel do ponto, a classe da carta de referência em vista (a Carta Ecológica tem o seu bloco). Ao mudar
-  // de camada, a linha anterior sai e entra a da nova carta (antes do bloco da Carta Ecológica).
+  // No painel do ponto, a classe da carta de referência em vista (o PROF e a Carta Ecológica têm o seu bloco). Ao
+  // mudar de camada, a linha anterior sai e entra a da nova carta (antes desses blocos).
   function mostrarReferencia(lat, lon) {
     const alvo = alvoDoPonto();
     alvo.querySelector(".ponto-referencia")?.remove();
-    if (!cartaEmVista || cartaEmVista.camada === CARTA_ECOLOGICA) return;
+    if (!cartaEmVista || COM_BLOCO_PROPRIO.includes(cartaEmVista.camada)) return;
     const { camada, carta } = cartaEmVista;
     const bloco = el("section", { class: "zona-ecologica ponto-referencia", "aria-label": camada.nome },
       el("h3", { class: "zona-ecologica__titulo" }, camada.nome),
       el("p", {}, classeEm(lat, lon, carta) ?? "Este ponto fica fora desta carta."));
-    const zona = alvo.querySelector(".bloco-carta-ecologica");
+    const zona = alvo.querySelector(".bloco-prof, .bloco-carta-ecologica");
     if (zona) alvo.insertBefore(bloco, zona); else alvo.append(bloco);
   }
   // Painel próprio das cartas de referência (opacidade de cada carta) e os padrões das zonas tracejadas.
@@ -966,7 +996,8 @@ async function iniciar() {
       camadaVetorial = L.geoJSON(carta, { pane: "cartas", renderer: desenhoCartas, interactive: false,
         style: (f) => {
           const e = simb.entradas[f.properties.classe];
-          return { fillColor: e.traco ? `url(#trama-${e.codigo})` : e.cor, fillOpacity: 1, color: "#5b5039", weight: 0.4, opacity: 0.5 };
+          return { fillColor: e.traco ? `url(#trama-${e.codigo})` : e.cor, fillOpacity: 1, color: "#5b5039", weight: 0.4, opacity: 0.5,
+                   ...camada.contorno };
         } }).addTo(mapa);
       tramas(simb);
       camadaGeo.options.style = () => ({ fillColor: "#000", fillOpacity: 0, stroke: false });

@@ -313,6 +313,10 @@ h2 { font-size: var(--t-subtitulo); margin-bottom: 0.5rem; }
 .ponto dl { display: grid; grid-template-columns: auto 1fr; gap: 0.25rem 1rem; margin: 0; }
 .ponto dt { color: var(--tinta-suave); font-size: var(--t-pequeno); }
 .ponto dd { margin: 0; font-variant-numeric: tabular-nums; }
+/* PROF: listas de espécies longas — cada título por cima do seu texto, a toda a largura */
+.ponto .bloco-prof dl { display: block; }
+.ponto .bloco-prof dt { margin-top: 0.5rem; }
+.ponto .bloco-prof dt:first-child { margin-top: 0; }
 .ponto .classe { font-family: var(--serifa); font-size: var(--t-subtitulo); margin: 0 0 0.5rem; }
 .ponto .aviso { margin: 0.5rem 0 0; font-size: var(--t-nota); color: var(--tinta-suave); }
 

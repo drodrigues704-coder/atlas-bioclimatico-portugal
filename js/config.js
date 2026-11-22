@@ -171,7 +171,28 @@ const TODAS_AS_CAMADAS = [
     cores: ["#2a78d6", "#1baf7a", "#008300", "#eda100", "#e34948", "#6250d6", "#e87ba4"],
   },
   // --- Cartas de referência (tipo "referencia"): vetoriais, mostram-se como são, sem passar pelas
-  // células; os nomes da legenda vêm do próprio ficheiro (scripts/18_carta_ecologica.py).
+  // células; os nomes da legenda vêm do próprio ficheiro.
+  // PROF (ICNF, scripts/20_prof.py): primeiro, por serem o instrumento oficial para escolher espécies
+  // (decisão do autor, 22/11/2026). Nas duas versões, com a fonte citada.
+  {
+    id: "prof_srh",
+    nome: "PROF: sub-regiões homogéneas",
+    tipo: "referencia",
+    dados: "dados/referencia/prof_srh.json",
+    descricao: "Sub-regiões homogéneas dos sete Programas Regionais de Ordenamento Florestal (ICNF; Portarias n.º 52 a 58/2019), a 1:100 000, coloridas pelas três funções gerais dos espaços florestais. Em qualquer mapa, ao clicar num ponto, o painel mostra a sub-região, as funções e as espécies a privilegiar (Grupos I e II).",
+    opacidade: 0.7,
+    // Muitas SRH vizinhas têm as mesmas funções (a mesma cor): o contorno marca cada uma.
+    contorno: { color: "#1e2a2f", weight: 1, opacity: 0.8 },
+  },
+  {
+    id: "prof_corredores",
+    nome: "PROF: corredores ecológicos",
+    tipo: "referencia",
+    dados: "dados/referencia/prof_corredores.json",
+    descricao: "Corredores ecológicos dos PROF (ICNF), a 1:100 000: orientação de médio e longo prazo para ligar as áreas de conservação. As intervenções florestais aí seguem normas de silvicultura próprias (capítulo E do documento estratégico de cada PROF).",
+    opacidade: 0.7,
+  },
+  // Carta Ecológica (scripts/18_carta_ecologica.py).
   {
     id: "carta_ecologica",
     nome: "Carta Ecológica (Albuquerque)",

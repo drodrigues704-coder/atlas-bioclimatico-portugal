@@ -23,6 +23,10 @@ autor. Para os reutilizar, é preciso autorização.
   fitogeográficas, solos, acidez e alcalinidade dos solos, Carta Litológica e capacidade
   de uso do solo, 1:1 000 000; fonte: Atlas do Ambiente Digital – Instituto do Ambiente.
   Não são obra do autor.
+- PROF (camadas de referência e painel do ponto): sub-regiões homogéneas, corredores
+  ecológicos e espécies a privilegiar dos Programas Regionais de Ordenamento Florestal,
+  ICNF (Portarias n.º 52 a 58/2019, Declarações de Retificação n.º 12 a 17/2019 e
+  Portaria n.º 18/2022). Não são obra do autor; a consulta não dispensa o texto legal.
 
 ## Versões anteriores
 
