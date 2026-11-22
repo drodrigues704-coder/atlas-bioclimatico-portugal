@@ -54,12 +54,31 @@ export function fichaDoProf(p, carta) {
   return {
     srh: s.nome,
     prof: prof.nome,
+    profId: s.prof,
     regulamento: `Portaria n.º ${prof.portaria}, art. ${s.artigo}.º`,
     funcoes: s.funcoes.map((k) => carta.funcoes[k]).join(", "),
     grupo1,
     grupo2,
     conservacao: [...grupo1, ...grupo2].some((e) => e.conservacao),
   };
+}
+
+// Potencial climático 1991–2020 no ponto (matrizes do PROF do Alentejo e de Lisboa e Vale do Tejo; scripts/
+// 21_prof_potencial.py): as espécies da sub-região por classe, com `muda` quando a classe pode mudar com pouca
+// diferença de chuva. null fora do ALT e do LVT, ou quando a célula é de outro PROF que o ponto (na fronteira).
+export function potencialNoPonto(ficha, app, idCelula) {
+  const c = app?.celulas?.[String(idCelula)];
+  if (!ficha || !c || c[0] !== ficha.profId) return null;
+  const [, codigos, avisos] = c;
+  const indice = app.indice[ficha.profId] ?? {};
+  const classes = { Boa: [], Regular: [], Baixa: [] };
+  for (const e of [...ficha.grupo1, ...ficha.grupo2]) {
+    const k = indice[e.botanico];
+    if (k === undefined) continue;
+    const lista = classes[app.codigos[codigos[k]]];
+    if (lista && !lista.some((x) => x.comum === e.comum)) lista.push({ comum: e.comum, botanico: e.botanico, muda: avisos[k] === "1" });
+  }
+  return classes;
 }
 
 // Texto para o painel do ponto (Carta Ecológica).

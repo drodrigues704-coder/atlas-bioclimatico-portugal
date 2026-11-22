@@ -12,7 +12,7 @@ import { ajustarAltitude, altitudeEm, desenharWalterLieth, grelhaDeAltitude, res
 import { codigosPresentes, corSobreClaro, criarSimbologia, formatarCoordenadas, formatarNumero } from "./simbologia.js";
 import { descodificar, imagem, pintar } from "./suave.js";
 import { criarMovel, indicacao } from "./movel.js";
-import { classeEm, fichaDaZona, fichaDoProf, simbologiaDaCarta, zonaEm } from "./carta.js";
+import { classeEm, fichaDaZona, fichaDoProf, potencialNoPonto, simbologiaDaCarta, zonaEm } from "./carta.js";
 
 const $ = (id) => document.getElementById(id);
 if (PUBLICO) document.documentElement.classList.add("publico");
@@ -243,7 +243,7 @@ function mostrarPonto(props, lat, lon, metadados) {
 
 // PROF no painel do ponto: a sub-região homogénea, as funções, o corredor ecológico (null: sem o ficheiro) e as
 // espécies a privilegiar. `f`: fichaDoProf (carta.js), null fora dos PROF.
-function blocoDoProf(f, emCorredor) {
+function blocoDoProf(f, emCorredor, potencial = null) {
   const s = el("section", { class: "zona-ecologica bloco-prof", "aria-labelledby": "t-prof" },
     el("h3", { class: "zona-ecologica__titulo", id: "t-prof" }, "Ordenamento florestal (PROF)"));
   if (!f) {
@@ -257,6 +257,16 @@ function blocoDoProf(f, emCorredor) {
   s.append(el("dl", {}, ...linhas.flatMap(([t, d]) => [el("dt", {}, t), el("dd", {}, d)]),
     el("dt", {}, "Espécies a privilegiar (Grupo I)"), el("dd", {}, ...lista(f.grupo1)),
     el("dt", {}, "Outras espécies a privilegiar (Grupo II)"), el("dd", {}, ...lista(f.grupo2))));
+  if (potencial) {
+    // a classe de cada espécie pela matriz do PROF com o clima de 1991–2020 (≈: pode mudar com pouca diferença de chuva)
+    const partes = ["Boa", "Regular", "Baixa"].filter((k) => potencial[k].length).flatMap((k, i) => [
+      i ? "; " : "", el("strong", {}, `${k}: `), potencial[k].map((e) => `${e.comum}${e.muda ? " ≈" : ""}`).join(", ")]);
+    if (partes.length) {
+      s.querySelector("dl").append(el("dt", {}, "Potencial climático 1991–2020 (matriz do PROF)"), el("dd", {}, ...partes));
+      s.append(el("p", { class: "aviso" }, "Potencial climático: a matriz do PROF aplicada ao clima de 1991–2020 desta célula. "
+        + "Não é a aptidão (falta o solo). ≈: a classe muda com um pouco mais ou menos de chuva."));
+    }
+  }
   s.append(el("p", { class: "aviso" }, "Uma área com espécies do Grupo I só se reconverte para outra do Grupo I; espécies fora "
     + "dos dois grupos, só com fundamentação técnica e autorização do ICNF."
     + (f.conservacao ? " * Gestão e conservação prioritária em manchas de regeneração natural." : "")));
@@ -818,16 +828,25 @@ async function iniciar() {
   const COM_BLOCO_PROPRIO = [CARTA_ECOLOGICA, PROF_SRH, PROF_CORREDORES].filter(Boolean);
   // Os blocos próprios do painel do ponto, em qualquer mapa: o PROF (com o corredor ecológico) e a Carta
   // Ecológica. Sem um dos ficheiros, o painel fica com o resto.
-  async function mostrarZona(lat, lon) {
+  // Potencial climático do PROF (só a versão completa): lê-se uma vez.
+  let potencialProf = null;
+  const lerPotencial = () => {
+    if (PUBLICO) return Promise.resolve(null);
+    potencialProf ??= carregar(DADOS.potencialProf).catch((erro) => { potencialProf = null; throw erro; });
+    return potencialProf;
+  };
+  async function mostrarZona(lat, lon, idCelula) {
     const este = ++pedidoZona;
     const ler = (c) => (c ? lerCarta(c) : Promise.resolve(null));
-    const [srh, corredores, ecologica] = await Promise.allSettled([ler(PROF_SRH), ler(PROF_CORREDORES), ler(CARTA_ECOLOGICA)]);
-    for (const r of [srh, corredores, ecologica]) if (r.status === "rejected") console.error(r.reason);
+    const [srh, corredores, ecologica, potencial] = await Promise.allSettled(
+      [ler(PROF_SRH), ler(PROF_CORREDORES), ler(CARTA_ECOLOGICA), lerPotencial()]);
+    for (const r of [srh, corredores, ecologica, potencial]) if (r.status === "rejected") console.error(r.reason);
     if (este !== pedidoZona) return;
     const alvo = alvoDoPonto();
     if (srh.value) {
       const emCorredor = corredores.value ? zonaEm(lat, lon, corredores.value) !== null : null;
-      alvo.append(blocoDoProf(fichaDoProf(zonaEm(lat, lon, srh.value), srh.value), emCorredor));
+      const ficha = fichaDoProf(zonaEm(lat, lon, srh.value), srh.value);
+      alvo.append(blocoDoProf(ficha, emCorredor, potencialNoPonto(ficha, potencial.value, idCelula)));
     }
     if (ecologica.value) alvo.append(blocoDaZona(zonaEm(lat, lon, ecologica.value)));
   }
@@ -879,7 +898,7 @@ async function iniciar() {
     for (const estilo of DESTAQUE) contorno.addLayer(L.geoJSON(feature, { pane: "destaque", style: estilo, interactive: false }));
     mostrarPonto(feature.properties, lat, lon, metadados);
     mostrarReferencia(lat, lon);
-    mostrarZona(lat, lon);
+    mostrarZona(lat, lon, feature.properties.id);
     if (!PUBLICO) abrirAnalise(feature.properties, lat, lon);
   }
 

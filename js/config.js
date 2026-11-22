@@ -11,6 +11,8 @@ export const DADOS = {
   clima: "dados/clima.json",            // Walter-Lieth: dados/clima/linha_<j>.json
   estacoes: "dados/estacoes.json",      // estações do IPMA da validação (carrega-se ao ligar a camada)
   capitais: "dados/capitais.json",      // capitais de distrito (Atlas do Ambiente; carrega-se ao ligar o botão)
+  // potencial climático 1991–2020 pelas matrizes do PROF (ALT e LVT; só a versão completa; scripts/21_prof_potencial.py)
+  potencialProf: "dados/prof_potencial.json",
 };
 
 export const VISTA_INICIAL = { centro: [39.6, -8.0], zoom: 7 };
